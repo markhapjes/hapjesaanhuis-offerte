@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hapjes aan Huis — Offerte Systeem Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
+<style>
+:root {
+  --red: #D4220F;
+  --red-dark: #a81a0b;
+  --red-light: #fdf1f0;
+  --orange: #F4793B;
+  --cream: #FDF8F3;
+  --warm: #F5EDE0;
+  --dark: #1A1008;
+  --mid: #5C3D1E;
+  --gray: #8B7355;
+  --border: #E8D9C5;
+  --white: #FFFFFF;
+  --green: #2D6A4F;
+  --green-bg: #D8F3DC;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--dark);
+  min-height: 100vh;
+}
+
+/* ── NAVIGATION ── */
+.topbar {
+  background: var(--red);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 4px 24px rgba(212,34,15,0.3);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  margin-right: 32px;
+}
+.brand-logo {
+  width: 38px; height: 38px;
+  background: var(--white);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+}
+.brand-name {
+  font-family: 'Fraunces', serif;
+  color: var(--white);
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.brand-name span { display: block; font-size: 0.65rem; font-weight: 400; opacity: 0.75; letter-spacing: 1px; text-transform: uppercase; }
+
+.nav-tabs { display: flex; gap: 0; }
+.nav-tab {
+  padding: 18px 20px;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+  user-select: none;
+  letter-spacing: 0.2px;
+}
+.nav-tab:hover { color: rgba(255,255,255,0.9); }
+.nav-tab.active { color: var(--white); border-bottom-color: var(--white); }
+
+/* ── PANELS ── */
+.panel { display: none; animation: fadeUp 0.3s ease; }
+.panel.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── SHARED ── */
+.page { max-width: 1100px; margin: 0 auto; padding: 36px 24px 80px; }
+.page-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
+.page-title { font-family: 'Fraunces', serif; font-size: 2rem; color: var(--dark); line-height: 1; }
+.page-sub { font-size: 0.83rem; color: var(--gray); margin-top: 5px; }
+
+.btn {
+  border: none; border-radius: 8px; padding: 10px 20px;
+  font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.btn-primary { background: var(--red); color: var(--white); }
+.btn-primary:hover { background: var(--red-dark); }
+.btn-outline { background: transparent; color: var(--red); border: 2px solid var(--red); }
+.btn-outline:hover { background: var(--red-light); }
+.btn-ghost { background: transparent; color: var(--mid); border: 1.5px solid var(--border); }
+.btn-ghost:hover { background: var(--warm); }
+.btn-sm { padding: 7px 14px; font-size: 0.78rem; }
+.btn-lg { padding: 14px 32px; font-size: 0.95rem; }
+
+.card {
+  background: var(--white);
+  border-radius: 14px;
+  box-shadow: 0 2px 20px rgba(92,61,30,0.08);
+  overflow: hidden;
+}
+.card-head {
+  background: var(--dark);
+  color: var(--white);
+  padding: 16px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card-head-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1rem;
+  color: var(--orange);
+}
+.card-body { padding: 22px; }
+
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 11px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+.badge-draft    { background: #f5f5f5; color: #777; }
+.badge-sent     { background: #fff3cd; color: #856404; }
+.badge-viewed   { background: #cfe2ff; color: #084298; }
+.badge-signed   { background: var(--green-bg); color: var(--green); }
+.badge-new      { background: #fde8e8; color: var(--red); }
+
+/* ═══════════════════════════
+   PANEL 1 — DASHBOARD
+═══════════════════════════ */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: 0 2px 12px rgba(92,61,30,0.07);
+  border-top: 4px solid var(--red);
+  transition: transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.stat::after {
+  content: attr(data-icon);
+  position: absolute;
+  right: 16px; bottom: 12px;
+  font-size: 2.2rem;
+  opacity: 0.08;
+}
+.stat:hover { transform: translateY(-3px); }
+.stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gray); margin-bottom: 10px; }
+.stat-value { font-family: 'Fraunces', serif; font-size: 2.1rem; font-weight: 700; color: var(--dark); line-height: 1; }
+.stat-delta { font-size: 0.75rem; color: var(--green); margin-top: 6px; font-weight: 500; }
+
+.two-col { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; }
+
+.quote-row { display: flex; align-items: center; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+.quote-row:last-child { border-bottom: none; }
+.qr-avatar {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--red); color: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.78rem; flex-shrink: 0;
+  font-family: 'Fraunces', serif;
+}
+.qr-name { font-weight: 600; font-size: 0.88rem; }
+.qr-meta { font-size: 0.73rem; color: var(--gray); margin-top: 1px; }
+.qr-right { margin-left: auto; text-align: right; }
+.qr-amount { font-weight: 700; font-family: 'Fraunces', serif; font-size: 0.95rem; color: var(--dark); }
+
+.act-item { display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.act-item:last-child { border-bottom: none; }
+.act-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); margin-top: 5px; flex-shrink: 0; }
+.act-text { font-size: 0.83rem; line-height: 1.5; }
+.act-time { font-size: 0.72rem; color: var(--gray); margin-top: 2px; }
+
+/* ═══════════════════════════
+   PANEL 2 — PRODUCTEN
+═══════════════════════════ */
+.product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.product-card {
+  background: var(--white);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 16px rgba(92,61,30,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(212,34,15,0.15); }
+.product-card.selected { border: 2.5px solid var(--red); }
+
+.pc-image {
+  height: 160px;
+  background: linear-gradient(135deg, var(--warm), var(--border));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 4rem;
+  position: relative;
+}
+.pc-image .pc-badge {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--red); color: var(--white);
+  font-size: 0.65rem; font-weight: 700;
+  padding: 3px 8px; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.pc-body { padding: 16px; }
+.pc-category { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--red); font-weight: 600; margin-bottom: 5px; }
+.pc-name { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
+.pc-desc { font-size: 0.78rem; color: var(--gray); line-height: 1.5; margin-bottom: 12px; }
+.pc-footer { display: flex; justify-content: space-between; align-items: center; }
+.pc-price { font-family: 'Fraunces', serif; font-weight: 700; color: var(--red); font-size: 1.05rem; }
+.pc-price span { font-size: 0.72rem; color: var(--gray); font-family: 'DM Sans', sans-serif; font-weight: 400; }
+.pc-min { font-size: 0.72rem; color: var(--gray); }
+
+/* ═══════════════════════════
+   PANEL 3 — OFFERTE BUILDER
+═══════════════════════════ */
+.builder-layout { display: grid; grid-template-columns: 1fr 320px; gap: 22px; align-items: start; }
+
+.event-bar {
+  background: var(--dark);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 22px;
+  display: flex; justify-content: space-between;
+  align-items: center; flex-wrap: wrap; gap: 14px;
+}
+.eb-item .eb-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.45); margin-bottom: 4px; }
+.eb-item .eb-val { font-weight: 600; font-size: 0.9rem; color: var(--white); }
+
+.item-row {
+  display: flex; gap: 14px; align-items: center;
+  padding: 14px; border-radius: 12px;
+  border: 1.5px solid var(--border);
+  margin-bottom: 10px; background: var(--white);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.item-row:hover { border-color: var(--red); box-shadow: 0 2px 12px rgba(212,34,15,0.08); }
+.ir-emoji { font-size: 2rem; flex-shrink: 0; width: 56px; height: 56px; background: var(--warm); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.ir-info { flex: 1; }
+.ir-name { font-weight: 700; font-size: 0.92rem; color: var(--dark); }
+.ir-meta { font-size: 0.75rem; color: var(--gray); margin-top: 2px; }
+.qty-ctrl { display: flex; align-items: center; gap: 10px; }
+.qty-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1.5px solid var(--border); background: var(--white);
+  cursor: pointer; font-size: 1rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; color: var(--mid);
+}
+.qty-btn:hover { background: var(--red); color: var(--white); border-color: var(--red); }
+.qty-val { font-weight: 700; min-width: 28px; text-align: center; font-family: 'Fraunces', serif; font-size: 1rem; }
+.ir-price { text-align: right; flex-shrink: 0; }
+.ir-price .excl { font-weight: 700; font-family: 'Fraunces', serif; color: var(--dark); }
+.ir-price .vat { font-size: 0.72rem; color: var(--gray); }
+.ir-del { color: #ddd; cursor: pointer; font-size: 1.2rem; transition: color 0.15s; padding: 4px; }
+.ir-del:hover { color: var(--red); }
+
+.add-row {
+  border: 2px dashed var(--border); border-radius: 12px;
+  padding: 16px; margin-top: 6px;
+}
+.add-row select, .add-row input {
+  width: 100%; border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 10px 12px;
+  font-size: 0.85rem; font-family: 'DM Sans', sans-serif;
+  background: var(--cream); margin-bottom: 10px;
+  color: var(--dark);
+}
+.add-row select:focus, .add-row input:focus { outline: none; border-color: var(--red); }
+
+.totals-sticky { position: sticky; top: 70px; }
+.total-line { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 0.88rem; border-bottom: 1px solid var(--border); }
+.total-line:last-child { border-bottom: none; }
+.total-line .lbl { color: var(--gray); }
+.total-line.grand { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 700; color: var(--dark); border-top: 2px solid var(--dark); padding-top: 12px; margin-top: 4px; }
+.total-line.grand .val { color: var(--red); }
+.total-line.discount .val { color: var(--red); font-weight: 600; }
+
+/* ═══════════════════════════
+   PANEL 4 — KLANTPORTAL
+═══════════════════════════ */
+.portal-wrap { max-width: 680px; margin: 0 auto; padding: 0 16px 80px; }
+
+.portal-hero {
+  background: var(--red);
+  border-radius: 0 0 24px 24px;
+  padding: 32px 28px 28px;
+  text-align: center;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.portal-hero::before {
+  content: '🍽️';
+  position: absolute; top: -10px; right: -10px;
+  font-size: 8rem; opacity: 0.08;
+}
+.portal-hero .ph-logo { font-family: 'Fraunces', serif; color: var(--white); font-size: 1.6rem; font-weight: 700; margin-bottom: 4px; }
+.portal-hero .ph-sub { color: rgba(255,255,255,0.65); font-size: 0.8rem; margin-bottom: 16px; }
+.portal-hero .ph-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.15); color: var(--white);
+  padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 500;
+}
+
+.pcard { background: var(--white); border-radius: 14px; box-shadow: 0 2px 16px rgba(92,61,30,0.08); margin-bottom: 16px; overflow: hidden; }
+.pcard-head { background: var(--dark); color: var(--white); padding: 14px 20px; font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 8px; }
+.pcard-body { padding: 20px; }
+
+.event-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.eg-item .eg-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); margin-bottom: 3px; }
+.eg-item .eg-val { font-weight: 600; font-size: 0.9rem; color: var(--dark); }
+
+.portal-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.portal-item:last-child { border-bottom: none; }
+.pi-emoji { font-size: 1.4rem; margin-right: 10px; flex-shrink: 0; }
+.pi-name { font-weight: 600; font-size: 0.88rem; }
+.pi-qty { font-size: 0.75rem; color: var(--gray); margin-top: 2px; }
+.pi-price { font-weight: 700; font-family: 'Fraunces', serif; font-size: 0.95rem; color: var(--dark); text-align: right; flex-shrink: 0; }
+
+.portal-total { display: flex; justify-content: space-between; padding: 8px 0; font-size: 0.88rem; }
+.portal-total.grand { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 700; border-top: 2px solid var(--dark); padding-top: 12px; margin-top: 6px; }
+.portal-total.grand .pt-val { color: var(--red); }
+.portal-total .discount { color: var(--red); font-weight: 600; }
+
+/* Aanpassingen sectie */
+.aanpassing-field { margin-bottom: 14px; }
+.aanpassing-field label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--mid); margin-bottom: 6px; }
+.aanpassing-field textarea {
+  width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 12px; font-size: 0.88rem; font-family: 'DM Sans', sans-serif;
+  resize: vertical; min-height: 80px; background: var(--cream); color: var(--dark);
+  transition: border-color 0.2s;
+}
+.aanpassing-field textarea:focus { outline: none; border-color: var(--red); }
+
+/* Signature */
+.sig-wrap { border: 2px dashed var(--border); border-radius: 12px; overflow: hidden; background: var(--cream); position: relative; margin-bottom: 14px; cursor: crosshair; }
+canvas { width: 100%; height: 140px; display: block; touch-action: none; }
+.sig-ph { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #ccc; font-size: 0.85rem; text-align: center; pointer-events: none; }
+.sig-wrap.has-sig { border-color: var(--green); background: var(--green-bg); }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 0.8rem; font-weight: 600; color: var(--mid); }
+.field input {
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 10px 12px; font-size: 0.88rem; font-family: 'DM Sans', sans-serif;
+  background: var(--cream); color: var(--dark); transition: border-color 0.2s;
+}
+.field input:focus { outline: none; border-color: var(--red); }
+
+.akkoord-btn {
+  width: 100%; padding: 16px; background: var(--red); color: var(--white);
+  border: none; border-radius: 12px; font-size: 1rem; font-weight: 700;
+  cursor: pointer; font-family: 'Fraunces', serif; letter-spacing: 0.3px;
+  transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.akkoord-btn:hover { background: var(--red-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(212,34,15,0.3); }
+.akkoord-btn:disabled { background: #ddd; color: #999; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.aanpassing-btn {
+  width: 100%; padding: 14px; background: transparent; color: var(--red);
+  border: 2px solid var(--red); border-radius: 12px; font-size: 0.92rem; font-weight: 600;
+  cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.aanpassing-btn:hover { background: var(--red-light); }
+
+.success-card {
+  background: var(--green-bg); border: 2px solid var(--green);
+  border-radius: 14px; padding: 28px; text-align: center; margin-bottom: 16px;
+}
+.success-card .s-icon { font-size: 3rem; margin-bottom: 10px; }
+.success-card .s-title { font-family: 'Fraunces', serif; font-size: 1.3rem; color: var(--green); margin-bottom: 6px; }
+.success-card .s-sub { font-size: 0.88rem; color: #555; }
+
+.aanpassing-card {
+  background: #fff8e1; border: 2px solid #ffc107;
+  border-radius: 14px; padding: 28px; text-align: center; margin-bottom: 16px;
+}
+.aanpassing-card .s-icon { font-size: 3rem; margin-bottom: 10px; }
+.aanpassing-card .s-title { font-family: 'Fraunces', serif; font-size: 1.2rem; color: #856404; margin-bottom: 6px; }
+.aanpassing-card .s-sub { font-size: 0.88rem; color: #666; }
+
+/* Tabs in klantportal */
+.portal-tabs { display: flex; gap: 0; margin-bottom: 20px; background: var(--white); border-radius: 12px; padding: 6px; box-shadow: 0 2px 12px rgba(92,61,30,0.07); }
+.ptab { flex: 1; padding: 11px; text-align: center; cursor: pointer; border-radius: 8px; font-size: 0.83rem; font-weight: 500; color: var(--gray); transition: all 0.2s; }
+.ptab.active { background: var(--red); color: var(--white); font-weight: 600; }
+
+/* ═══════════════════════════
+   PANEL 5 — PDF PREVIEW
+═══════════════════════════ */
+.pdf-wrap { max-width: 720px; margin: 0 auto; }
+.pdf-doc {
+  background: var(--white);
+  border-radius: 4px;
+  box-shadow: 0 10px 50px rgba(92,61,30,0.18);
+  overflow: hidden;
+  font-family: 'DM Sans', sans-serif;
+}
+.pdf-top {
+  background: var(--red);
+  padding: 32px 40px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.pdf-brand-name { font-family: 'Fraunces', serif; color: var(--white); font-size: 1.7rem; font-weight: 700; }
+.pdf-brand-tag { color: rgba(255,255,255,0.6); font-size: 0.75rem; margin-top: 3px; }
+.pdf-doc-title { font-family: 'Fraunces', serif; color: var(--white); font-size: 2rem; font-weight: 900; text-align: right; }
+.pdf-doc-num { color: rgba(255,255,255,0.65); font-size: 0.8rem; text-align: right; margin-top: 3px; }
+
+.pdf-orange-bar { background: var(--orange); height: 5px; }
+
+.pdf-body { padding: 32px 40px; }
+
+.pdf-info { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-bottom: 24px; }
+.pdf-info-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 2px; color: #bbb; margin-bottom: 8px; border-bottom: 1px solid #f0f0f0; padding-bottom: 4px; }
+.pdf-info-val { font-size: 0.83rem; line-height: 1.8; color: #444; }
+.pdf-info-val strong { color: var(--dark); }
+
+.pdf-event {
+  background: var(--red-light);
+  border-left: 5px solid var(--red);
+  padding: 14px 18px;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 24px;
+}
+.pdf-event-name { font-family: 'Fraunces', serif; font-size: 1.15rem; color: var(--dark); }
+.pdf-event-meta { font-size: 0.78rem; color: var(--gray); margin-top: 4px; }
+
+table.pdf-tbl { width: 100%; border-collapse: collapse; margin-bottom: 22px; font-size: 0.82rem; }
+table.pdf-tbl thead tr { background: var(--dark); }
+table.pdf-tbl thead th { color: rgba(255,255,255,0.75); padding: 9px 12px; text-align: left; font-size: 0.63rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+table.pdf-tbl thead th.r { text-align: right; }
+table.pdf-tbl tbody tr { border-bottom: 1px solid #f5f0e8; }
+table.pdf-tbl tbody tr:nth-child(even) { background: var(--cream); }
+table.pdf-tbl tbody td { padding: 10px 12px; vertical-align: top; }
+table.pdf-tbl tbody td.r { text-align: right; font-weight: 600; }
+.pdf-item-em { font-size: 1.3rem; }
+.pdf-item-name { font-weight: 700; color: var(--dark); display: block; }
+.pdf-item-sub { font-size: 0.72rem; color: var(--gray); }
+
+.pdf-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.pdf-vat-lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1.5px; color: #bbb; margin-bottom: 8px; }
+table.pdf-vat { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
+table.pdf-vat th { padding: 5px 8px; background: #f5f0e8; color: var(--gray); font-size: 0.63rem; text-transform: uppercase; }
+table.pdf-vat td { padding: 5px 8px; color: #555; border-bottom: 1px solid #f5f0e8; }
+table.pdf-vat td.r { text-align: right; }
+
+table.pdf-sum { width: 100%; border-collapse: collapse; }
+table.pdf-sum td { padding: 7px 10px; font-size: 0.88rem; }
+table.pdf-sum .lbl { color: var(--gray); }
+table.pdf-sum .val { text-align: right; font-weight: 600; }
+table.pdf-sum .dis .lbl, table.pdf-sum .dis .val { color: var(--red); }
+table.pdf-sum .grand td { background: var(--red); color: var(--white); font-size: 1.05rem; font-weight: 700; }
+table.pdf-sum .grand .val { font-family: 'Fraunces', serif; }
+
+.pdf-validity { background: #fff8e1; border-left: 4px solid var(--orange); padding: 10px 14px; border-radius: 0 6px 6px 0; margin-top: 20px; font-size: 0.8rem; color: #665500; }
+
+.pdf-foot { background: var(--dark); padding: 16px 40px; display: flex; justify-content: space-between; align-items: center; font-size: 0.73rem; color: rgba(255,255,255,0.45); }
+.pdf-foot .right { color: var(--orange); font-weight: 600; }
+
+@media (max-width: 768px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+  .builder-layout { grid-template-columns: 1fr; }
+  .product-grid { grid-template-columns: 1fr 1fr; }
+  .pdf-info { grid-template-columns: 1fr; }
+  .pdf-bottom { grid-template-columns: 1fr; }
+  .field-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .stats { grid-template-columns: 1fr; }
+  .product-grid { grid-template-columns: 1fr; }
+  .nav-tab { padding: 16px 12px; font-size: 0.72rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="brand">
+    <div class="brand-logo">🍽️</div>
+    <div class="brand-name">Hapjes aan Huis <span>Offerte Systeem</span></div>
+  </div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="show('dashboard')">📊 Dashboard</div>
+    <div class="nav-tab" onclick="show('producten')">🍴 Producten</div>
+    <div class="nav-tab" onclick="show('builder')">✏️ Offerte maken</div>
+    <div class="nav-tab" onclick="show('portal')">👤 Klantportal</div>
+    <div class="nav-tab" onclick="show('pdf')">📄 PDF</div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════
+     PANEL 1 — DASHBOARD
+═══════════════════════════ -->
+<div id="panel-dashboard" class="panel active">
+<div class="page">
+  <div class="page-head">
+    <div>
+      <div class="page-title">Goedemiddag, Lisa 👋</div>
+      <div class="page-sub">Maandag 29 maart 2026 — 5 nieuwe aanvragen deze week</div>
+    </div>
+    <button class="btn btn-primary btn-lg" onclick="show('builder')">+ Nieuwe offerte</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat" data-icon="📋">
+      <div class="stat-label">Offertes deze maand</div>
+      <div class="stat-value">31</div>
+      <div class="stat-delta">↑ 8 meer dan vorige maand</div>
+    </div>
+    <div class="stat" data-icon="✅" style="border-top-color:#2D6A4F;">
+      <div class="stat-label">Getekend</div>
+      <div class="stat-value">18</div>
+      <div class="stat-delta">58% conversie</div>
+    </div>
+    <div class="stat" data-icon="💶" style="border-top-color:var(--orange);">
+      <div class="stat-label">Omzet deze maand</div>
+      <div class="stat-value">€ 47K</div>
+      <div class="stat-delta" style="color:var(--orange);">↑ 22% groei</div>
+    </div>
+    <div class="stat" data-icon="🔔" style="border-top-color:#856404;">
+      <div class="stat-label">Wacht op akkoord</div>
+      <div class="stat-value">9</div>
+      <div class="stat-delta" style="color:#856404;">Actie vereist</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-title">Recente offertes</div>
+        <button class="btn btn-ghost btn-sm" style="color:rgba(255,255,255,0.5); border-color:rgba(255,255,255,0.15);">Alle offertes →</button>
+      </div>
+      <div class="card-body">
+        <div class="quote-row">
+          <div class="qr-avatar">VD</div>
+          <div>
+            <div class="qr-name">Vos & De Groot BV</div>
+            <div class="qr-meta">HAH-2026-0031 · Borrel · 18 apr</div>
+          </div>
+          <div class="qr-right">
+            <div class="qr-amount">€ 2.840</div>
+            <span class="badge badge-viewed">Bekeken</span>
+          </div>
+        </div>
+        <div class="quote-row">
+          <div class="qr-avatar">SM</div>
+          <div>
+            <div class="qr-name">Sandra Maartens</div>
+            <div class="qr-meta">HAH-2026-0030 · Verjaardag · 5 mei</div>
+          </div>
+          <div class="qr-right">
+            <div class="qr-amount">€ 1.260</div>
+            <span class="badge badge-signed">✓ Getekend</span>
+          </div>
+        </div>
+        <div class="quote-row">
+          <div class="qr-avatar">RB</div>
+          <div>
+            <div class="qr-name">Rijnstate Bedrijven</div>
+            <div class="qr-meta">HAH-2026-0029 · Lunch · 2 apr</div>
+          </div>
+          <div class="qr-right">
+            <div class="qr-amount">€ 980</div>
+            <span class="badge badge-sent">Verstuurd</span>
+          </div>
+        </div>
+        <div class="quote-row">
+          <div class="qr-avatar">JH</div>
+          <div>
+            <div class="qr-name">Jan & Hanny Hoekstra</div>
+            <div class="qr-meta">HAH-2026-0028 · Bruiloft · 14 jun</div>
+          </div>
+          <div class="qr-right">
+            <div class="qr-amount">€ 5.600</div>
+            <span class="badge badge-signed">✓ Getekend</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-head-title">Activiteit</div></div>
+      <div class="card-body">
+        <div class="act-item">
+          <div class="act-dot" style="background:var(--green);"></div>
+          <div>
+            <div class="act-text"><strong>Sandra Maartens</strong> heeft offerte HAH-2026-0030 ondertekend</div>
+            <div class="act-time">1 uur geleden</div>
+          </div>
+        </div>
+        <div class="act-item">
+          <div class="act-dot"></div>
+          <div>
+            <div class="act-text"><strong>Vos & De Groot BV</strong> heeft aanpassing gevraagd: meer vegetarische opties</div>
+            <div class="act-time">3 uur geleden</div>
+          </div>
+        </div>
+        <div class="act-item">
+          <div class="act-dot" style="background:var(--orange);"></div>
+          <div>
+            <div class="act-text">Offerte HAH-2026-0031 verstuurd naar <strong>Vos & De Groot BV</strong></div>
+            <div class="act-time">Gisteren 14:22</div>
+          </div>
+        </div>
+        <div class="act-item">
+          <div class="act-dot"></div>
+          <div>
+            <div class="act-text">Nieuwe aanvraag van <strong>Technisch Bureau Dijkstra</strong> — 60 gasten, borrel</div>
+            <div class="act-time">Gisteren 11:05</div>
+          </div>
+        </div>
+        <div class="act-item">
+          <div class="act-dot" style="background:#856404;"></div>
+          <div>
+            <div class="act-text">Order HAH-2026-0028 doorgestuurd naar bestelsysteem ✓</div>
+            <div class="act-time">Donderdag 09:00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════
+     PANEL 2 — PRODUCTEN
+═══════════════════════════ -->
+<div id="panel-producten" class="panel">
+<div class="page">
+  <div class="page-head">
+    <div>
+      <div class="page-title">Productcatalogus</div>
+      <div class="page-sub">12 actieve producten — klik om toe te voegen aan offerte</div>
+    </div>
+    <button class="btn btn-primary">+ Product toevoegen</button>
+  </div>
+  <div class="product-grid">
+    <div class="product-card" onclick="show('builder')">
+      <div class="pc-image">🥂<span class="pc-badge">Populair</span></div>
+      <div class="pc-body">
+        <div class="pc-category">Dranken</div>
+        <div class="pc-name">Welkomstdrankje Deluxe</div>
+        <div class="pc-desc">Prosecco, jus d'orange en bruiswater. Inclusief bediening en glazen.</div>
+        <div class="pc-footer">
+          <div class="pc-price">€ 5,50 <span>p.p. excl. BTW</span></div>
+          <div class="pc-min">min. 10p.</div>
+        </div>
+      </div>
+    </div>
+    <div class="product-card" onclick="show('builder')">
+      <div class="pc-image">🧀</div>
+      <div class="pc-body">
+        <div class="pc-category">Hapjes</div>
+        <div class="pc-name">Borrelschaal Klassiek</div>
+        <div class="pc-desc">Gemengde hapjes: bitterballen, kaasblokjes, worst en crackers.</div>
+        <div class="pc-footer">
+          <div class="pc-price">€ 9,50 <span>p.p. excl. BTW</span></div>
+          <div class="pc-min">min. 10p.</div>
+        </div>
+      </div>
+    </div>
+    <div class="product-card" onclick="show('builder')">
+      <div class="pc-image">🍣<span class="pc-badge">Nieuw</span></div>
+      <div class="pc-body">
+        <div class="pc-category">Hapjes</div>
+        <div class="pc-name">Borrelschaal Luxe</div>
+        <div class="pc-desc">Premium hapjes: sushi, tapas, bruschetta, gerookte zalm en meer.</div>
+        <div class="pc-footer">
+          <div class="pc-price">€ 16,50 <span>p.p. excl. BTW</span></div>
+          <div class="pc-min">min. 15p.</div>
+        </div>
+      </div>
+    </div>
+    <div class="product-card" onclick="show('builder')">
+      <div class="pc-image">🥗</div>
+      <div class="pc-body">
+        <div class="pc-category">Lunch</div>
+        <div class="pc-name">Lunchpakket Standaard</div>
+        <div class="pc-desc">Vers belegde broodjes, salade, fruit en een drankje naar keuze.</div>
+        <div class="pc-footer">
+          <div class="pc-price">€ 12,50 <span>p.p. excl. BTW</span></div>
+          <div class="pc-min">min. 10p.</div>
+        </div>
+      </div>
+    </div>
+    <div class="product-card" onclick="show('builder')">
+      <div class="pc-image">🍖</div>
+      <div class="pc-body">
+        <div class="pc-category">Buffetten</div>
+        <div class="pc-name">Warm-Koud Buffet</div>
+        <div class="pc-desc">Uitgebreid buffet met warme gerechten, saladebar en desserts.</div>
+        <div class="pc-footer">
+          <div class="pc-price">€ 28,50 <span>p.p. excl. BTW</span></div>
+          <div class="pc-min">min. 20p.</div>
+        </div>
+      </div>
+    </div>
+    <div class="product-card" onclick="show('builder')">
+      <div class="pc-image">☕</div>
+      <div class="pc-body">
+        <div class="pc-category">High Tea</div>
+        <div class="pc-name">High Tea Arrangement</div>
+        <div class="pc-desc">Klassieke high tea met sandwiches, scones, taartjes en thee/koffie.</div>
+        <div class="pc-footer">
+          <div class="pc-price">€ 22,00 <span>p.p. excl. BTW</span></div>
+          <div class="pc-min">min. 8p.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════
+     PANEL 3 — OFFERTE BUILDER
+═══════════════════════════ -->
+<div id="panel-builder" class="panel">
+<div class="page">
+  <div class="page-head">
+    <div>
+      <div class="page-title">HAH-2026-0031</div>
+      <div class="page-sub">Vos & De Groot BV — Bedrijfsborrel</div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-ghost">💾 Opslaan</button>
+      <button class="btn btn-outline">📄 PDF</button>
+      <button class="btn btn-primary" onclick="show('portal')">📤 Versturen naar klant</button>
+    </div>
+  </div>
+
+  <div class="event-bar">
+    <div class="eb-item"><div class="eb-label">Klant</div><div class="eb-val">Vos & De Groot BV</div></div>
+    <div class="eb-item"><div class="eb-label">Evenement</div><div class="eb-val">Bedrijfsborrel</div></div>
+    <div class="eb-item"><div class="eb-label">Datum</div><div class="eb-val">18 april 2026</div></div>
+    <div class="eb-item"><div class="eb-label">Locatie</div><div class="eb-val">Kantoor Rotterdam</div></div>
+    <div class="eb-item"><div class="eb-label">Gasten</div><div class="eb-val">50 personen</div></div>
+    <span class="badge badge-viewed" style="background:rgba(255,255,255,0.15); color:white;">👁 Bekeken door klant</span>
+  </div>
+
+  <div class="builder-layout">
+    <div>
+      <div style="font-size:0.68rem; text-transform:uppercase; letter-spacing:1.5px; color:var(--gray); margin-bottom:14px; font-weight:600;">🍴 Offerteregels</div>
+
+      <div class="item-row">
+        <div class="ir-emoji">🥂</div>
+        <div class="ir-info">
+          <div class="ir-name">Welkomstdrankje Deluxe</div>
+          <div class="ir-meta">€ 5,50 p.p. excl. BTW · 9% BTW · min. 10p.</div>
+        </div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+          <span class="qty-val">50</span>
+          <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+        </div>
+        <div class="ir-price">
+          <div class="excl">€ 275,00</div>
+          <div class="vat">excl. BTW</div>
+        </div>
+        <div class="ir-del">×</div>
+      </div>
+
+      <div class="item-row">
+        <div class="ir-emoji">🧀</div>
+        <div class="ir-info">
+          <div class="ir-name">Borrelschaal Klassiek</div>
+          <div class="ir-meta">€ 9,50 p.p. excl. BTW · 9% BTW · min. 10p.</div>
+        </div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+          <span class="qty-val">50</span>
+          <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+        </div>
+        <div class="ir-price">
+          <div class="excl">€ 475,00</div>
+          <div class="vat">excl. BTW</div>
+        </div>
+        <div class="ir-del">×</div>
+      </div>
+
+      <div class="item-row">
+        <div class="ir-emoji">🥗</div>
+        <div class="ir-info">
+          <div class="ir-name">Lunchpakket Standaard</div>
+          <div class="ir-meta">€ 12,50 p.p. excl. BTW · 9% BTW · min. 10p.</div>
+        </div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+          <span class="qty-val">50</span>
+          <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+        </div>
+        <div class="ir-price">
+          <div class="excl">€ 625,00</div>
+          <div class="vat">excl. BTW</div>
+        </div>
+        <div class="ir-del">×</div>
+      </div>
+
+      <div class="add-row">
+        <div style="font-size:0.78rem; font-weight:600; color:var(--gray); margin-bottom:10px;">+ Product toevoegen</div>
+        <select>
+          <option>— Kies een product —</option>
+          <option>Borrelschaal Luxe (€ 16,50 p.p.)</option>
+          <option>Warm-Koud Buffet (€ 28,50 p.p.)</option>
+          <option>High Tea Arrangement (€ 22,00 p.p.)</option>
+          <option>Drankenpakket (€ 9,50 p.p.)</option>
+        </select>
+        <button class="btn btn-primary btn-sm">Toevoegen</button>
+      </div>
+    </div>
+
+    <!-- TOTALEN -->
+    <div class="totals-sticky">
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">💰 Totaaloverzicht</div></div>
+        <div class="card-body">
+          <div class="total-line"><span class="lbl">Subtotaal excl. BTW</span><span>€ 1.375,00</span></div>
+          <div class="total-line discount"><span class="lbl">Korting (5%)</span><span class="val">− € 68,75</span></div>
+          <div class="total-line"><span class="lbl">BTW 9%</span><span>€ 122,06</span></div>
+          <div class="total-line grand"><span>Totaal incl. BTW</span><span class="val">€ 1.428,31</span></div>
+
+          <div style="margin-top:18px; padding-top:16px; border-top:1px solid var(--border);">
+            <div style="font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--gray); margin-bottom:10px;">Korting toepassen</div>
+            <div style="display:flex; gap:8px; margin-bottom:16px;">
+              <input type="number" value="5" style="border:1.5px solid var(--border); border-radius:8px; padding:8px 10px; font-size:0.85rem; width:70px; font-family:'DM Sans',sans-serif; background:var(--cream);">
+              <select style="border:1.5px solid var(--border); border-radius:8px; padding:8px 10px; font-size:0.85rem; flex:1; font-family:'DM Sans',sans-serif; background:var(--cream);">
+                <option>% korting</option>
+                <option>€ vast bedrag</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="show('portal')">📤 Versturen naar klant</button>
+            <button class="btn btn-ghost" style="width:100%; justify-content:center;" onclick="show('pdf')">📄 PDF bekijken</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px; background:var(--red-light); border-radius:12px; padding:14px; border-left:4px solid var(--red);">
+        <div style="font-size:0.75rem; font-weight:600; color:var(--red); margin-bottom:6px;">💬 Aanpassing gevraagd</div>
+        <div style="font-size:0.8rem; color:var(--mid); line-height:1.5;">"Kunnen jullie meer vegetarische opties toevoegen? We hebben 8 vegetariërs in de groep."</div>
+        <div style="font-size:0.72rem; color:var(--gray); margin-top:6px;">— Vos & De Groot BV, 3 uur geleden</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════
+     PANEL 4 — KLANTPORTAL
+═══════════════════════════ -->
+<div id="panel-portal" class="panel">
+<div class="portal-wrap" style="padding-top:0;">
+  <div class="portal-hero">
+    <div class="ph-logo">🍽️ Hapjes aan Huis</div>
+    <div class="ph-sub">Uw persoonlijke offerteportal</div>
+    <div class="ph-badge">📋 Offerte HAH-2026-0031</div>
+  </div>
+
+  <div id="portal-success" style="display:none;">
+    <div class="success-card">
+      <div class="s-icon">🎉</div>
+      <div class="s-title">Offerte ondertekend!</div>
+      <div class="s-sub">Bedankt! Uw offerte is succesvol ondertekend.<br>U ontvangt binnen enkele minuten een bevestiging per e-mail.</div>
+    </div>
+  </div>
+
+  <div id="portal-aanpassing-success" style="display:none;">
+    <div class="aanpassing-card">
+      <div class="s-icon">✉️</div>
+      <div class="s-title">Aanpassing verstuurd!</div>
+      <div class="s-sub">Uw wensen zijn doorgestuurd naar Hapjes aan Huis.<br>U ontvangt binnen 1 werkdag een aangepaste offerte.</div>
+    </div>
+  </div>
+
+  <div class="portal-tabs">
+    <div class="ptab active" onclick="ptab('bekijken')">📋 Offerte bekijken</div>
+    <div class="ptab" onclick="ptab('akkoord')">✍️ Akkoord geven</div>
+    <div class="ptab" onclick="ptab('aanpassen')">✏️ Aanpassing vragen</div>
+  </div>
+
+  <!-- TAB 1: BEKIJKEN -->
+  <div id="ptab-bekijken">
+    <div class="pcard">
+      <div class="pcard-head">🎉 Evenementgegevens</div>
+      <div class="pcard-body">
+        <div class="event-grid">
+          <div class="eg-item"><div class="eg-label">Bedrijf</div><div class="eg-val">Vos & De Groot BV</div></div>
+          <div class="eg-item"><div class="eg-label">Evenement</div><div class="eg-val">Bedrijfsborrel</div></div>
+          <div class="eg-item"><div class="eg-label">Datum</div><div class="eg-val">18 april 2026</div></div>
+          <div class="eg-item"><div class="eg-label">Locatie</div><div class="eg-val">Kantoor Rotterdam</div></div>
+          <div class="eg-item"><div class="eg-label">Gasten</div><div class="eg-val">50 personen</div></div>
+          <div class="eg-item"><div class="eg-label">Geldig tot</div><div class="eg-val">18 april 2026</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard">
+      <div class="pcard-head">🍴 Uw bestelling</div>
+      <div class="pcard-body">
+        <div class="portal-item">
+          <span class="pi-emoji">🥂</span>
+          <div style="flex:1;">
+            <div class="pi-name">Welkomstdrankje Deluxe</div>
+            <div class="pi-qty">50 p. × € 5,50 excl. BTW</div>
+          </div>
+          <div class="pi-price">€ 275,00</div>
+        </div>
+        <div class="portal-item">
+          <span class="pi-emoji">🧀</span>
+          <div style="flex:1;">
+            <div class="pi-name">Borrelschaal Klassiek</div>
+            <div class="pi-qty">50 p. × € 9,50 excl. BTW</div>
+          </div>
+          <div class="pi-price">€ 475,00</div>
+        </div>
+        <div class="portal-item">
+          <span class="pi-emoji">🥗</span>
+          <div style="flex:1;">
+            <div class="pi-name">Lunchpakket Standaard</div>
+            <div class="pi-qty">50 p. × € 12,50 excl. BTW</div>
+          </div>
+          <div class="pi-price">€ 625,00</div>
+        </div>
+
+        <div style="padding-top:14px; margin-top:8px;">
+          <div class="portal-total"><span>Subtotaal excl. BTW</span><span>€ 1.375,00</span></div>
+          <div class="portal-total"><span class="discount">Korting 5%</span><span class="discount">− € 68,75</span></div>
+          <div class="portal-total"><span>BTW 9%</span><span>€ 122,06</span></div>
+          <div class="portal-total grand"><span>Totaal incl. BTW</span><span class="pt-val">€ 1.428,31</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:12px;">
+      <button class="akkoord-btn" style="flex:1;" onclick="ptab('akkoord')">✍️ Akkoord geven</button>
+      <button class="aanpassing-btn" style="flex:1;" onclick="ptab('aanpassen')">✏️ Aanpassing vragen</button>
+    </div>
+  </div>
+
+  <!-- TAB 2: AKKOORD -->
+  <div id="ptab-akkoord" style="display:none;">
+    <div class="pcard" id="sign-section">
+      <div class="pcard-head">✍️ Offerte ondertekenen</div>
+      <div class="pcard-body">
+        <p style="font-size:0.85rem; color:var(--gray); margin-bottom:18px; line-height:1.6;">U geeft akkoord op offerte <strong>HAH-2026-0031</strong> voor een totaalbedrag van <strong>€ 1.428,31 incl. BTW</strong>.</p>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Uw naam</label>
+            <input type="text" value="Thomas Vos" placeholder="Voor- en achternaam">
+          </div>
+          <div class="field">
+            <label>E-mailadres</label>
+            <input type="email" value="t.vos@vosdegroot.nl" placeholder="email@bedrijf.nl">
+          </div>
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <label style="font-size:0.8rem; font-weight:600; color:var(--mid); display:block; margin-bottom:8px;">Handtekening <span style="font-weight:400;color:var(--gray);">(klik & teken hieronder)</span></label>
+          <div class="sig-wrap" id="sigWrap">
+            <canvas id="sigCanvas"></canvas>
+            <div class="sig-ph" id="sigPh">✍️ Klik hier om te tekenen</div>
+          </div>
+          <button onclick="clearSig()" class="btn btn-ghost btn-sm" style="margin-top:6px;">Wissen</button>
+        </div>
+
+        <div style="display:flex; gap:10px; align-items:flex-start; margin-bottom:20px; font-size:0.83rem; color:var(--mid);">
+          <input type="checkbox" id="agree" style="margin-top:3px; flex-shrink:0; accent-color:var(--red);">
+          <label for="agree">Ik ga akkoord met de offerte en het totaalbedrag van <strong>€ 1.428,31 incl. BTW</strong>. Na ondertekening wordt de order automatisch verwerkt.</label>
+        </div>
+
+        <button class="akkoord-btn" id="signBtn" onclick="doSign()">✍️ Bevestigen & ondertekenen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: AANPASSING -->
+  <div id="ptab-aanpassen" style="display:none;">
+    <div class="pcard" id="aanpassing-section">
+      <div class="pcard-head">✏️ Aanpassing aanvragen</div>
+      <div class="pcard-body">
+        <p style="font-size:0.85rem; color:var(--gray); margin-bottom:18px; line-height:1.6;">Heeft u wensen of aanpassingen? Laat het ons weten en wij sturen u zo snel mogelijk een aangepaste offerte.</p>
+
+        <div class="aanpassing-field">
+          <label>Uw aanpassing of wens</label>
+          <textarea id="aanpassingText" placeholder="Bijvoorbeeld: meer vegetarische opties, andere aantallen, extra producten...">Kunnen jullie meer vegetarische opties toevoegen? We hebben 8 vegetariërs in de groep.</textarea>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Uw naam</label>
+            <input type="text" value="Thomas Vos">
+          </div>
+          <div class="field">
+            <label>Telefoonnummer</label>
+            <input type="tel" value="010 - 123 45 67">
+          </div>
+        </div>
+
+        <button class="akkoord-btn" onclick="doAanpassing()" style="background:var(--orange);">✉️ Aanpassing versturen</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════
+     PANEL 5 — PDF
+═══════════════════════════ -->
+<div id="panel-pdf" class="panel">
+<div class="page">
+  <div class="page-head">
+    <div>
+      <div class="page-title">PDF Preview</div>
+      <div class="page-sub">Zo ontvangt de klant de offerte</div>
+    </div>
+    <button class="btn btn-primary">📥 Download PDF</button>
+  </div>
+
+  <div class="pdf-wrap">
+    <div class="pdf-doc">
+      <div class="pdf-top">
+        <div>
+          <div class="pdf-brand-name">🍽️ Hapjes aan Huis</div>
+          <div class="pdf-brand-tag">Catering & Partyservice · Heel Nederland</div>
+        </div>
+        <div>
+          <div class="pdf-doc-title">OFFERTE</div>
+          <div class="pdf-doc-num">HAH-2026-0031</div>
+        </div>
+      </div>
+      <div class="pdf-orange-bar"></div>
+
+      <div class="pdf-body">
+        <div class="pdf-info">
+          <div>
+            <div class="pdf-info-label">Klantgegevens</div>
+            <div class="pdf-info-val">
+              <strong>Vos & De Groot BV</strong><br>
+              T.a.v. Thomas Vos<br>
+              Weena 505, Rotterdam<br>
+              t.vos@vosdegroot.nl<br>
+              010 - 123 45 67
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div class="pdf-info-label" style="text-align:right;">Offerte details</div>
+            <div class="pdf-info-val" style="text-align:right;">
+              <strong>Nummer:</strong> HAH-2026-0031<br>
+              <strong>Datum:</strong> 29-03-2026<br>
+              <strong>Geldig tot:</strong> 18-04-2026<br>
+              <strong>Contactpersoon:</strong> Lisa van Dijk
+            </div>
+          </div>
+        </div>
+
+        <div class="pdf-event">
+          <div class="pdf-event-name">Bedrijfsborrel — Vos & De Groot BV</div>
+          <div class="pdf-event-meta">📅 18 april 2026 &nbsp;·&nbsp; 📍 Kantoor Rotterdam &nbsp;·&nbsp; 👥 50 gasten</div>
+        </div>
+
+        <table class="pdf-tbl">
+          <thead>
+            <tr>
+              <th style="width:40px;"></th>
+              <th>Omschrijving</th>
+              <th class="r" style="width:70px;">Aantal</th>
+              <th class="r" style="width:90px;">Prijs excl.</th>
+              <th class="r" style="width:45px;">BTW</th>
+              <th class="r" style="width:95px;">Totaal excl.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="pdf-item-em">🥂</span></td>
+              <td><span class="pdf-item-name">Welkomstdrankje Deluxe</span><span class="pdf-item-sub">Prosecco, jus & bruiswater incl. bediening</span></td>
+              <td class="r">50 p.</td><td class="r">€ 5,50</td><td class="r">9%</td><td class="r">€ 275,00</td>
+            </tr>
+            <tr>
+              <td><span class="pdf-item-em">🧀</span></td>
+              <td><span class="pdf-item-name">Borrelschaal Klassiek</span><span class="pdf-item-sub">Bitterballen, kaas, worst & crackers</span></td>
+              <td class="r">50 p.</td><td class="r">€ 9,50</td><td class="r">9%</td><td class="r">€ 475,00</td>
+            </tr>
+            <tr>
+              <td><span class="pdf-item-em">🥗</span></td>
+              <td><span class="pdf-item-name">Lunchpakket Standaard</span><span class="pdf-item-sub">Vers belegde broodjes, salade & fruit</span></td>
+              <td class="r">50 p.</td><td class="r">€ 12,50</td><td class="r">9%</td><td class="r">€ 625,00</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="pdf-bottom">
+          <div>
+            <div class="pdf-vat-lbl">BTW specificatie</div>
+            <table class="pdf-vat">
+              <thead><tr><th>Tarief</th><th>Grondslag</th><th class="r">BTW bedrag</th></tr></thead>
+              <tbody>
+                <tr><td>9% BTW</td><td>€ 1.306,25</td><td class="r">€ 117,56</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <table class="pdf-sum">
+              <tr><td class="lbl">Subtotaal excl. BTW</td><td class="val">€ 1.375,00</td></tr>
+              <tr class="dis"><td class="lbl">Korting (5%)</td><td class="val">− € 68,75</td></tr>
+              <tr><td class="lbl">BTW totaal</td><td class="val">€ 117,56</td></tr>
+              <tr class="grand"><td>TOTAAL INCL. BTW</td><td class="val">€ 1.423,81</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="pdf-validity">⏳ Deze offerte is geldig tot <strong>18 april 2026</strong>. Vragen? Bel 085-7430362 of mail info@hapjesaanhuis.nl</div>
+      </div>
+
+      <div class="pdf-foot">
+        <span>Hapjes aan Huis · info@hapjesaanhuis.nl · 085-7430362 · KvK 12345678 · BTW NL123456789B01</span>
+        <span class="right">HAH-2026-0031</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// Panel navigation
+function show(panel) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + panel).classList.add('active');
+  const idx = { dashboard:0, producten:1, builder:2, portal:3, pdf:4 };
+  document.querySelectorAll('.nav-tab')[idx[panel]].classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// Qty control
+function changeQty(btn, d) {
+  const span = btn.parentNode.querySelector('.qty-val');
+  let v = parseInt(span.textContent) + d;
+  if (v < 1) v = 1;
+  span.textContent = v;
+}
+
+// Portal tabs
+function ptab(tab) {
+  ['bekijken','akkoord','aanpassen'].forEach(t => {
+    document.getElementById('ptab-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.ptab').forEach((el, i) => {
+    el.classList.toggle('active', ['bekijken','akkoord','aanpassen'][i] === tab);
+  });
+}
+
+// Signature pad
+let sigPad;
+window.addEventListener('load', () => {
+  const canvas = document.getElementById('sigCanvas');
+  if (!canvas) return;
+  sigPad = new SignaturePad(canvas, { penColor: '#1A1008' });
+
+  function resize() {
+    const r = Math.max(window.devicePixelRatio||1, 1);
+    canvas.width = canvas.offsetWidth * r;
+    canvas.height = canvas.offsetHeight * r;
+    canvas.getContext('2d').scale(r, r);
+    sigPad.clear();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  sigPad.addEventListener('beginStroke', () => {
+    document.getElementById('sigPh').style.display = 'none';
+    document.getElementById('sigWrap').classList.add('has-sig');
+  });
+});
+
+function clearSig() {
+  if (sigPad) { sigPad.clear(); }
+  document.getElementById('sigPh').style.display = 'block';
+  document.getElementById('sigWrap').classList.remove('has-sig');
+}
+
+function doSign() {
+  if (!sigPad || sigPad.isEmpty()) {
+    alert('Zet eerst uw handtekening in het vak hierboven.');
+    return;
+  }
+  if (!document.getElementById('agree').checked) {
+    alert('Vink het akkoordvakje aan om door te gaan.');
+    return;
+  }
+  document.getElementById('sign-section').style.display = 'none';
+  document.getElementById('portal-success').style.display = 'block';
+  document.querySelectorAll('.ptab').forEach(t => t.style.display = 'none');
+  document.getElementById('ptab-bekijken').style.display = 'none';
+  document.getElementById('ptab-akkoord').style.display = 'block';
+}
+
+function doAanpassing() {
+  const txt = document.getElementById('aanpassingText').value.trim();
+  if (!txt) { alert('Beschrijf uw aanpassing.'); return; }
+  document.getElementById('aanpassing-section').style.display = 'none';
+  document.getElementById('portal-aanpassing-success').style.display = 'block';
+  document.querySelectorAll('.ptab').forEach(t => t.style.display = 'none');
+  document.getElementById('ptab-aanpassen').style.display = 'block';
+}
+</script>
+</body>
+</html>
