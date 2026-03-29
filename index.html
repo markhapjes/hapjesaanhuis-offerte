@@ -3,6 +3,881 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catering Group — Offerte Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
+<style>
+/* ══════════════════════════════════════════
+   PLATFORM THEMES
+══════════════════════════════════════════ */
+:root {
+  --c1: #D4220F; --c2: #F4793B; --bg: #FDF8F3; --dark: #1A1008;
+  --mid: #5C3D1E; --gray: #8B7355; --border: #E8D9C5; --white: #fff;
+  --green: #2D6A4F; --green-bg: #D8F3DC;
+}
+[data-platform="hapjesaanhuis"]   { --c1:#D4220F; --c2:#F4793B; --bg:#FDF8F3; --dark:#1A1008; --mid:#5C3D1E; --gray:#8B7355; --border:#E8D9C5; }
+[data-platform="bbqengourmet"]    { --c1:#1B4332; --c2:#D4A017; --bg:#F4FBF6; --dark:#0D2818; --mid:#2D6A4F; --gray:#52796F; --border:#B7E4C7; }
+[data-platform="baronwheels"]     { --c1:#1A1A2E; --c2:#E94560; --bg:#F8F8FF; --dark:#0F0F1A; --mid:#16213E; --gray:#666699; --border:#CCCCEE; }
+[data-platform="hapjescateraar"]  { --c1:#E07B39; --c2:#F4A261; --bg:#FFFBF5; --dark:#1A0A00; --mid:#6B3A1F; --gray:#9C6644; --border:#F0D9C0; }
+[data-platform="lunchlatenbezorgen"] { --c1:#2563EB; --c2:#60A5FA; --bg:#F0F7FF; --dark:#0C1A3A; --mid:#1E3A8A; --gray:#4B6CB7; --border:#BFDBFE; }
+[data-platform="kerstdinerbestellen"] { --c1:#8B0000; --c2:#C41E3A; --bg:#FFF5F5; --dark:#1A0000; --mid:#5C0000; --gray:#8B4444; --border:#FFCCCC; }
+[data-platform="bisbite"]          { --c1:#FF6B35; --c2:#FFB347; --bg:#FFF8F4; --dark:#1A0800; --mid:#7A3010; --gray:#9C6644; --border:#FFD0B0; }
+[data-platform="highteabestellen"]   { --c1:#7B2D8B; --c2:#C084FC; --bg:#FDF4FF; --dark:#1A0025; --mid:#4A1560; --gray:#9B59B6; --border:#E9D5FF; }
+[data-platform="bissbite"]          { --c1:#FF6B35; --c2:#FFD166; --bg:#FFFAF5; --dark:#1A0800; --mid:#7A2E00; --gray:#A0522D; --border:#FFD6B0; }
+[data-platform="bisbite"]            { --c1:#FF6B35; --c2:#FFB347; --bg:#FFF8F5; --dark:#1A0800; --mid:#7A3000; --gray:#B05A2A; --border:#FFD4BC; }
+
+* { box-sizing: border-box; margin:0; padding:0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--dark);
+  min-height: 100vh;
+  transition: background 0.4s;
+}
+
+/* ══════════════════════════════════════════
+   PLATFORM SELECTOR SCREEN
+══════════════════════════════════════════ */
+#platform-screen {
+  min-height: 100vh;
+  background: #0D0D0D;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+}
+#platform-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 20% 50%, rgba(212,34,15,0.12) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(27,67,50,0.12) 0%, transparent 60%),
+              radial-gradient(ellipse at 60% 80%, rgba(123,45,139,0.12) 0%, transparent 60%);
+}
+
+.ps-header { text-align:center; margin-bottom:48px; position:relative; z-index:1; }
+.ps-logo { font-family:'Fraunces',serif; font-size:0.75rem; font-weight:400; color:rgba(255,255,255,0.35); letter-spacing:3px; text-transform:uppercase; margin-bottom:16px; }
+.ps-title { font-family:'Fraunces',serif; font-size:2.8rem; font-weight:900; color:#fff; line-height:1.1; margin-bottom:10px; }
+.ps-title span { font-style:italic; color:rgba(255,255,255,0.45); }
+.ps-sub { color:rgba(255,255,255,0.45); font-size:0.9rem; }
+
+.platforms-grid {
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:16px;
+  max-width:960px;
+  width:100%;
+  position:relative; z-index:1;
+}
+
+.platform-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius:16px;
+  padding:24px 20px;
+  cursor:pointer;
+  transition: all 0.25s;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.platform-card::before {
+  content:'';
+  position:absolute; inset:0;
+  background: var(--card-color);
+  opacity:0;
+  transition: opacity 0.25s;
+  border-radius:16px;
+}
+.platform-card:hover { border-color:rgba(255,255,255,0.2); transform:translateY(-4px); box-shadow:0 16px 48px rgba(0,0,0,0.4); }
+.platform-card:hover::before { opacity:0.08; }
+
+.pc-emoji { font-size:2.4rem; margin-bottom:12px; display:block; }
+.pc-name { font-family:'Fraunces',serif; font-size:0.95rem; font-weight:700; color:#fff; margin-bottom:4px; line-height:1.2; }
+.pc-url { font-size:0.65rem; color:rgba(255,255,255,0.3); letter-spacing:0.5px; }
+.pc-dot { width:8px; height:8px; border-radius:50%; margin:10px auto 0; }
+
+/* ══════════════════════════════════════════
+   MAIN DASHBOARD
+══════════════════════════════════════════ */
+#dashboard-screen { display:none; }
+
+.topbar {
+  background:var(--c1);
+  padding:0 28px;
+  display:flex; align-items:center;
+  position:sticky; top:0; z-index:200;
+  box-shadow:0 4px 24px rgba(0,0,0,0.2);
+  transition:background 0.4s;
+}
+.tb-brand { display:flex; align-items:center; gap:10px; padding:14px 0; margin-right:24px; cursor:pointer; }
+.tb-emoji { font-size:1.4rem; }
+.tb-name { font-family:'Fraunces',serif; color:#fff; font-size:1rem; font-weight:700; line-height:1.1; }
+.tb-name span { display:block; font-size:0.6rem; font-weight:400; opacity:0.6; letter-spacing:1px; text-transform:uppercase; font-family:'DM Sans',sans-serif; }
+.tb-switch { margin-left:0; padding:8px 14px; background:rgba(255,255,255,0.12); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:8px; font-size:0.75rem; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.15s; white-space:nowrap; }
+.tb-switch:hover { background:rgba(255,255,255,0.2); }
+
+.nav-tabs { display:flex; margin-left:auto; }
+.nav-tab { padding:18px 18px; color:rgba(255,255,255,0.55); cursor:pointer; font-size:0.78rem; font-weight:500; border-bottom:3px solid transparent; transition:all 0.2s; white-space:nowrap; user-select:none; }
+.nav-tab:hover { color:rgba(255,255,255,0.85); }
+.nav-tab.active { color:#fff; border-bottom-color:rgba(255,255,255,0.8); }
+
+/* ── PANELS ── */
+.panel { display:none; animation:fadeUp 0.3s ease; }
+.panel.active { display:block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+.page { max-width:1100px; margin:0 auto; padding:32px 24px 80px; }
+.page-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:16px; }
+.page-title { font-family:'Fraunces',serif; font-size:1.8rem; color:var(--dark); }
+.page-sub { font-size:0.82rem; color:var(--gray); margin-top:4px; }
+
+.btn { border:none; border-radius:8px; padding:10px 20px; font-size:0.83rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.15s; display:inline-flex; align-items:center; gap:7px; }
+.btn-primary { background:var(--c1); color:#fff; }
+.btn-primary:hover { filter:brightness(0.9); }
+.btn-ghost { background:transparent; color:var(--mid); border:1.5px solid var(--border); }
+.btn-ghost:hover { background:var(--bg); }
+.btn-sm { padding:6px 14px; font-size:0.75rem; }
+.btn-lg { padding:13px 28px; font-size:0.9rem; }
+
+.card { background:#fff; border-radius:14px; box-shadow:0 2px 20px rgba(0,0,0,0.06); overflow:hidden; }
+.card-head { background:var(--dark); color:#fff; padding:15px 22px; display:flex; justify-content:space-between; align-items:center; }
+.card-head-title { font-family:'Fraunces',serif; font-size:0.95rem; color:var(--c2); }
+.card-body { padding:22px; }
+
+.badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:0.7rem; font-weight:600; }
+.badge-draft  { background:#f5f5f5; color:#666; }
+.badge-sent   { background:#fff3cd; color:#856404; }
+.badge-viewed { background:#cfe2ff; color:#084298; }
+.badge-signed { background:var(--green-bg); color:var(--green); }
+
+/* ── STATS ── */
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+.stat { background:#fff; border-radius:12px; padding:20px 22px; box-shadow:0 2px 12px rgba(0,0,0,0.05); border-top:4px solid var(--c1); transition:transform 0.2s; position:relative; overflow:hidden; }
+.stat::after { content:attr(data-icon); position:absolute; right:14px; bottom:10px; font-size:2rem; opacity:0.07; }
+.stat:hover { transform:translateY(-2px); }
+.stat-label { font-size:0.68rem; text-transform:uppercase; letter-spacing:1.5px; color:var(--gray); margin-bottom:8px; }
+.stat-value { font-family:'Fraunces',serif; font-size:2rem; font-weight:700; color:var(--dark); line-height:1; }
+.stat-delta { font-size:0.73rem; color:var(--green); margin-top:5px; }
+
+/* ── RECENT QUOTES ── */
+.two-col { display:grid; grid-template-columns:1.2fr 1fr; gap:20px; }
+.qrow { display:flex; align-items:center; gap:13px; padding:12px 0; border-bottom:1px solid var(--border); }
+.qrow:last-child { border-bottom:none; }
+.qr-av { width:36px; height:36px; border-radius:10px; background:var(--c1); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.75rem; flex-shrink:0; }
+.qr-name { font-weight:600; font-size:0.86rem; }
+.qr-meta { font-size:0.72rem; color:var(--gray); margin-top:1px; }
+.qr-right { margin-left:auto; text-align:right; }
+.qr-amount { font-weight:700; font-family:'Fraunces',serif; font-size:0.92rem; }
+
+.act-item { display:flex; gap:11px; padding:10px 0; border-bottom:1px solid var(--border); }
+.act-item:last-child { border-bottom:none; }
+.act-dot { width:8px; height:8px; border-radius:50%; background:var(--c1); margin-top:5px; flex-shrink:0; }
+.act-text { font-size:0.82rem; line-height:1.5; }
+.act-time { font-size:0.7rem; color:var(--gray); margin-top:2px; }
+
+/* ── PLATFORM OVERVIEW CARDS ── */
+.platforms-overview { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
+.po-card { background:#fff; border-radius:12px; padding:16px; box-shadow:0 2px 12px rgba(0,0,0,0.05); border-left:4px solid; transition:transform 0.2s; cursor:pointer; }
+.po-card:hover { transform:translateY(-2px); }
+.po-name { font-weight:700; font-size:0.82rem; margin-bottom:8px; }
+.po-stats { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.po-stat .lbl { font-size:0.62rem; text-transform:uppercase; letter-spacing:1px; color:var(--gray); }
+.po-stat .val { font-family:'Fraunces',serif; font-size:1.1rem; font-weight:700; }
+
+/* ── OFFERTE BUILDER ── */
+.builder-layout { display:grid; grid-template-columns:1fr 300px; gap:20px; align-items:start; }
+.event-bar { background:var(--dark); border-radius:14px; padding:18px 22px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; transition:background 0.4s; }
+.eb-label { font-size:0.62rem; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.4); margin-bottom:3px; }
+.eb-val { font-weight:600; font-size:0.88rem; color:#fff; }
+
+.item-row { display:flex; gap:13px; align-items:center; padding:13px; border-radius:12px; border:1.5px solid var(--border); margin-bottom:9px; background:#fff; transition:border-color 0.2s; }
+.item-row:hover { border-color:var(--c1); }
+.ir-emoji { font-size:1.8rem; flex-shrink:0; width:50px; height:50px; background:var(--bg); border-radius:10px; display:flex; align-items:center; justify-content:center; }
+.ir-info { flex:1; }
+.ir-name { font-weight:700; font-size:0.88rem; }
+.ir-meta { font-size:0.72rem; color:var(--gray); margin-top:2px; }
+.qty-ctrl { display:flex; align-items:center; gap:8px; }
+.qty-btn { width:26px; height:26px; border-radius:50%; border:1.5px solid var(--border); background:#fff; cursor:pointer; font-size:0.9rem; font-weight:700; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+.qty-btn:hover { background:var(--c1); color:#fff; border-color:var(--c1); }
+.qty-val { font-weight:700; min-width:26px; text-align:center; font-family:'Fraunces',serif; }
+.ir-price { text-align:right; flex-shrink:0; }
+.ir-price .excl { font-weight:700; font-family:'Fraunces',serif; }
+.ir-price .vat { font-size:0.7rem; color:var(--gray); }
+.ir-del { color:#ddd; cursor:pointer; font-size:1.2rem; transition:color 0.15s; padding:4px; }
+.ir-del:hover { color:#e53e3e; }
+
+.add-section { border:2px dashed var(--border); border-radius:12px; padding:14px; margin-top:4px; }
+.add-section select { width:100%; border:1.5px solid var(--border); border-radius:8px; padding:9px 12px; font-size:0.83rem; font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--dark); margin-bottom:9px; }
+
+.totals-card { position:sticky; top:68px; }
+.tl { display:flex; justify-content:space-between; padding:7px 0; font-size:0.86rem; border-bottom:1px solid var(--border); }
+.tl:last-child { border-bottom:none; }
+.tl .lbl { color:var(--gray); }
+.tl.grand { font-family:'Fraunces',serif; font-size:1.1rem; font-weight:700; border-top:2px solid var(--dark); padding-top:11px; margin-top:4px; }
+.tl.grand .val { color:var(--c1); }
+.tl.dis .val { color:#e53e3e; font-weight:600; }
+
+/* ── PORTAL ── */
+.portal-wrap { max-width:660px; margin:0 auto; padding:0 16px 80px; }
+.portal-hero { background:var(--c1); border-radius:0 0 20px 20px; padding:28px 24px 24px; text-align:center; margin-bottom:20px; transition:background 0.4s; }
+.ph-logo { font-family:'Fraunces',serif; color:#fff; font-size:1.5rem; font-weight:700; margin-bottom:3px; }
+.ph-sub { color:rgba(255,255,255,0.6); font-size:0.78rem; margin-bottom:14px; }
+.ph-badge { display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.15); color:#fff; padding:5px 14px; border-radius:20px; font-size:0.78rem; }
+
+.pcard { background:#fff; border-radius:14px; box-shadow:0 2px 16px rgba(0,0,0,0.07); margin-bottom:14px; overflow:hidden; }
+.pcard-head { background:var(--dark); color:#fff; padding:13px 18px; font-weight:600; font-size:0.86rem; display:flex; align-items:center; gap:7px; transition:background 0.4s; }
+.pcard-body { padding:18px; }
+
+.portal-tabs { display:flex; gap:0; margin-bottom:16px; background:#fff; border-radius:12px; padding:5px; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+.ptab { flex:1; padding:10px; text-align:center; cursor:pointer; border-radius:8px; font-size:0.78rem; font-weight:500; color:var(--gray); transition:all 0.2s; }
+.ptab.active { background:var(--c1); color:#fff; font-weight:600; }
+
+.portal-item { display:flex; justify-content:space-between; align-items:flex-start; padding:11px 0; border-bottom:1px solid var(--border); }
+.portal-item:last-child { border-bottom:none; }
+.pi-name { font-weight:600; font-size:0.86rem; }
+.pi-qty { font-size:0.72rem; color:var(--gray); margin-top:1px; }
+.pi-price { font-weight:700; font-family:'Fraunces',serif; font-size:0.9rem; flex-shrink:0; }
+
+.portal-total { display:flex; justify-content:space-between; padding:7px 0; font-size:0.86rem; }
+.portal-total.grand { font-family:'Fraunces',serif; font-size:1.1rem; font-weight:700; border-top:2px solid var(--dark); padding-top:11px; margin-top:5px; }
+.portal-total.grand .ptv { color:var(--c1); }
+
+.sig-wrap { border:2px dashed var(--border); border-radius:12px; overflow:hidden; background:var(--bg); position:relative; cursor:crosshair; }
+canvas#sigCanvas { width:100%; height:130px; display:block; touch-action:none; }
+.sig-ph { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:#ccc; font-size:0.83rem; text-align:center; pointer-events:none; }
+.sig-wrap.signed { border-color:var(--green); background:var(--green-bg); }
+
+.field { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+.field label { font-size:0.78rem; font-weight:600; color:var(--mid); }
+.field input, .field textarea { border:1.5px solid var(--border); border-radius:8px; padding:9px 12px; font-size:0.86rem; font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--dark); transition:border-color 0.2s; width:100%; }
+.field input:focus, .field textarea:focus { outline:none; border-color:var(--c1); }
+.field textarea { resize:vertical; min-height:80px; }
+
+.akkoord-btn { width:100%; padding:14px; background:var(--c1); color:#fff; border:none; border-radius:12px; font-size:0.95rem; font-weight:700; cursor:pointer; font-family:'Fraunces',serif; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:8px; }
+.akkoord-btn:hover { filter:brightness(0.9); transform:translateY(-1px); box-shadow:0 6px 20px rgba(0,0,0,0.2); }
+.aanpassing-btn { width:100%; padding:13px; background:transparent; color:var(--c1); border:2px solid var(--c1); border-radius:12px; font-size:0.88rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:7px; margin-top:10px; }
+.aanpassing-btn:hover { background:var(--bg); }
+
+.success-box { background:var(--green-bg); border:2px solid var(--green); border-radius:14px; padding:26px; text-align:center; margin-bottom:14px; }
+.success-box .si { font-size:2.8rem; margin-bottom:8px; }
+.success-box .st { font-family:'Fraunces',serif; font-size:1.2rem; color:var(--green); margin-bottom:5px; }
+.success-box .ss { font-size:0.84rem; color:#555; }
+
+/* ── PDF ── */
+.pdf-outer { max-width:700px; margin:0 auto; }
+.pdf-doc { background:#fff; border-radius:4px; box-shadow:0 10px 50px rgba(0,0,0,0.15); overflow:hidden; }
+.pdf-top { background:var(--c1); padding:28px 36px; display:flex; justify-content:space-between; align-items:flex-start; transition:background 0.4s; }
+.pdf-brand { font-family:'Fraunces',serif; color:#fff; font-size:1.5rem; font-weight:700; }
+.pdf-tagline { color:rgba(255,255,255,0.55); font-size:0.72rem; margin-top:2px; }
+.pdf-title { font-family:'Fraunces',serif; color:#fff; font-size:1.8rem; font-weight:900; text-align:right; }
+.pdf-num { color:rgba(255,255,255,0.55); font-size:0.75rem; text-align:right; margin-top:2px; }
+.pdf-bar { background:var(--c2); height:5px; transition:background 0.4s; }
+.pdf-body { padding:28px 36px; }
+.pdf-info { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:20px; }
+.pdf-lbl { font-size:0.6rem; text-transform:uppercase; letter-spacing:2px; color:#bbb; margin-bottom:6px; border-bottom:1px solid #f0f0f0; padding-bottom:3px; }
+.pdf-val { font-size:0.8rem; line-height:1.8; color:#444; }
+.pdf-val strong { color:var(--dark); }
+.pdf-event { background:var(--bg); border-left:5px solid var(--c1); padding:12px 16px; border-radius:0 8px 8px 0; margin-bottom:20px; transition:border-color 0.4s, background 0.4s; }
+.pdf-event-name { font-family:'Fraunces',serif; font-size:1.1rem; color:var(--dark); }
+.pdf-event-meta { font-size:0.75rem; color:var(--gray); margin-top:3px; }
+table.pdf-tbl { width:100%; border-collapse:collapse; margin-bottom:20px; font-size:0.8rem; }
+table.pdf-tbl thead tr { background:var(--dark); }
+table.pdf-tbl thead th { color:rgba(255,255,255,0.7); padding:8px 11px; text-align:left; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.8px; }
+table.pdf-tbl thead th.r { text-align:right; }
+table.pdf-tbl tbody tr { border-bottom:1px solid #f5f0e8; }
+table.pdf-tbl tbody tr:nth-child(even) { background:var(--bg); }
+table.pdf-tbl tbody td { padding:9px 11px; vertical-align:top; }
+table.pdf-tbl tbody td.r { text-align:right; font-weight:600; }
+.pn { font-weight:700; color:var(--dark); display:block; }
+.ps2 { font-size:0.7rem; color:var(--gray); }
+.pdf-sum-row { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+table.pdf-sum { width:100%; border-collapse:collapse; }
+table.pdf-sum td { padding:6px 10px; font-size:0.86rem; }
+table.pdf-sum .lbl { color:var(--gray); }
+table.pdf-sum .val { text-align:right; font-weight:600; }
+table.pdf-sum .dis .lbl,.pdf-sum .dis .val { color:#c53030; }
+table.pdf-sum .grand td { background:var(--c1); color:#fff; font-size:1rem; font-weight:700; transition:background 0.4s; }
+table.pdf-sum .grand .val { font-family:'Fraunces',serif; }
+.pdf-validity { background:#fff8e1; border-left:4px solid var(--c2); padding:9px 13px; border-radius:0 6px 6px 0; margin-top:18px; font-size:0.77rem; color:#665500; transition:border-color 0.4s; }
+.pdf-foot { background:var(--dark); padding:14px 36px; display:flex; justify-content:space-between; font-size:0.7rem; color:rgba(255,255,255,0.4); transition:background 0.4s; }
+.pdf-foot .right { color:var(--c2); font-weight:600; }
+
+@media(max-width:768px) {
+  .platforms-grid { grid-template-columns:repeat(2,1fr); }
+  .stats { grid-template-columns:1fr 1fr; }
+  .two-col { grid-template-columns:1fr; }
+  .platforms-overview { grid-template-columns:1fr 1fr; }
+  .builder-layout { grid-template-columns:1fr; }
+  .pdf-info { grid-template-columns:1fr; }
+  .pdf-sum-row { grid-template-columns:1fr; }
+}
+@media(max-width:480px) {
+  .ps-title { font-size:1.8rem; }
+  .platforms-grid { grid-template-columns:1fr 1fr; }
+  .stats { grid-template-columns:1fr; }
+  .platforms-overview { grid-template-columns:1fr; }
+  .nav-tab { padding:14px 10px; font-size:0.7rem; }
+}
+</style>
+</head>
+<body data-platform="hapjesaanhuis">
+
+<!-- ══════════════════════════════════════════
+     PLATFORM SELECTOR
+══════════════════════════════════════════ -->
+<div id="platform-screen">
+  <div class="ps-header">
+    <img src="data:image/png;base64,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" alt="Tasteful Moments" style="height:60px; filter:brightness(0) invert(1); opacity:0.9; margin-bottom:24px;">
+    <div class="ps-title">Kies een <span>platform</span></div>
+    <div class="ps-sub">Selecteer de website waarvoor je een offerte wilt maken</div>
+  </div>
+
+  <div class="platforms-grid">
+    <div class="platform-card" style="--card-color:#D4220F;" onclick="selectPlatform('hapjesaanhuis','🍽️','Hapjes aan Huis','hapjesaanhuis.nl')">
+      <span class="pc-emoji">🍽️</span>
+      <div class="pc-name">Hapjes aan Huis</div>
+      <div class="pc-url">hapjesaanhuis.nl</div>
+      <div class="pc-dot" style="background:#D4220F;"></div>
+    </div>
+    <div class="platform-card" style="--card-color:#1B4332;" onclick="selectPlatform('bbqengourmet','🔥','BBQ & Gourmet','bbqengourmet.nl')">
+      <span class="pc-emoji">🔥</span>
+      <div class="pc-name">BBQ & Gourmet</div>
+      <div class="pc-url">bbqengourmet.nl</div>
+      <div class="pc-dot" style="background:#1B4332;"></div>
+    </div>
+    <div class="platform-card" style="--card-color:#1A1A2E;" onclick="selectPlatform('baronwheels','🍺','Bar on Wheels','baronwheels.nl')">
+      <span class="pc-emoji">🍺</span>
+      <div class="pc-name">Bar on Wheels</div>
+      <div class="pc-url">baronwheels.nl</div>
+      <div class="pc-dot" style="background:#E94560;"></div>
+    </div>
+    <div class="platform-card" style="--card-color:#E07B39;" onclick="selectPlatform('hapjescateraar','🥗','Hapjes Cateraar','hapjescateraar.nl')">
+      <span class="pc-emoji">🥗</span>
+      <div class="pc-name">Hapjes Cateraar</div>
+      <div class="pc-url">hapjescateraar.nl</div>
+      <div class="pc-dot" style="background:#E07B39;"></div>
+    </div>
+    <div class="platform-card" style="--card-color:#2563EB;" onclick="selectPlatform('lunchlatenbezorgen','🥪','Lunch Laten Bezorgen','lunchlatenbezorgen.nl')">
+      <span class="pc-emoji">🥪</span>
+      <div class="pc-name">Lunch Laten Bezorgen</div>
+      <div class="pc-url">lunchlatenbezorgen.nl</div>
+      <div class="pc-dot" style="background:#2563EB;"></div>
+    </div>
+    <div class="platform-card" style="--card-color:#8B0000;" onclick="selectPlatform('kerstdinerbestellen','🎄','Kerstdiner Bestellen','kerstdinerbestellen.nl')">
+      <span class="pc-emoji">🎄</span>
+      <div class="pc-name">Kerstdiner Bestellen</div>
+      <div class="pc-url">kerstdinerbestellen.nl</div>
+      <div class="pc-dot" style="background:#8B0000;"></div>
+    </div>
+    <div class="platform-card" style="--card-color:#7B2D8B;" onclick="selectPlatform('highteabestellen','☕','High Tea Bestellen','highteabestellen.nl')">
+      <span class="pc-emoji">☕</span>
+      <div class="pc-name">High Tea Bestellen</div>
+      <div class="pc-url">highteabestellen.nl</div>
+      <div class="pc-dot" style="background:#7B2D8B;"></div>
+    </div>
+    <div class="platform-card" style="--card-color:#FF6B35;" onclick="selectPlatform('bisbite','🍕','Bis Bite','bisbite.nl')">
+      <span class="pc-emoji">🍕</span>
+      <div class="pc-name">Bis Bite</div>
+      <div class="pc-url">bisbite.nl</div>
+      <div class="pc-dot" style="background:#FF6B35;"></div>
+    </div>
+    <div class="platform-card" style="--card-color:#FF6B35;" onclick="selectPlatform('bisbite','🍟','Bisbite','bisbite.nl')">
+      <span class="pc-emoji">🍟</span>
+      <div class="pc-name">Bisbite</div>
+      <div class="pc-url">bisbite.nl</div>
+      <div class="pc-dot" style="background:#FF6B35;"></div>
+    </div>
+    <div class="platform-card" style="--card-color:#FF6B35;" onclick="selectPlatform('bissbite','🥙','Biss Bite','bissbite.nl')">
+      <span class="pc-emoji">🥙</span>
+      <div class="pc-name">Biss Bite</div>
+      <div class="pc-url">bissbite.nl</div>
+      <div class="pc-dot" style="background:#FF6B35;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MAIN DASHBOARD
+══════════════════════════════════════════ -->
+<div id="dashboard-screen">
+  <nav class="topbar">
+    <div class="tb-brand" onclick="goHome()" style="gap:14px;">
+      <img src="data:image/png;base64,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" alt="Tasteful Moments" style="height:36px; width:auto; object-fit:contain; flex-shrink:0;">
+      <div style="width:1px; height:32px; background:rgba(255,255,255,0.2); flex-shrink:0;"></div>
+      <div class="tb-name" id="tb-name">Hapjes aan Huis <span id="tb-url">hapjesaanhuis.nl</span></div>
+    </div>
+    <button class="tb-switch" onclick="goHome()">⇄ Wissel platform</button>
+    <div class="nav-tabs">
+      <div class="nav-tab active" onclick="showTab('dashboard')">📊 Dashboard</div>
+      <div class="nav-tab" onclick="showTab('builder')">✏️ Offerte maken</div>
+      <div class="nav-tab" onclick="showTab('portal')">👤 Klantportal</div>
+      <div class="nav-tab" onclick="showTab('pdf')">📄 PDF</div>
+    </div>
+  </nav>
+
+  <!-- DASHBOARD TAB -->
+  <div id="tab-dashboard" class="panel active">
+  <div class="page">
+    <div class="page-head">
+      <div>
+        <div class="page-title" id="dash-title">Goedemiddag, Lisa 👋</div>
+        <div class="page-sub" id="dash-sub">Alle platforms — overzicht van vandaag</div>
+      </div>
+      <button class="btn btn-primary btn-lg" onclick="showTab('builder')">+ Nieuwe offerte</button>
+    </div>
+
+    <!-- Platform overzicht -->
+    <div style="font-size:0.68rem; text-transform:uppercase; letter-spacing:1.5px; color:var(--gray); margin-bottom:12px; font-weight:600;">Alle platforms</div>
+    <div class="platforms-overview" id="platform-overview">
+      <div class="po-card" style="border-color:#D4220F;" onclick="selectPlatform('hapjesaanhuis','🍽️','Hapjes aan Huis','hapjesaanhuis.nl')">
+        <div class="po-name">🍽️ Hapjes aan Huis</div>
+        <div class="po-stats">
+          <div class="po-stat"><div class="lbl">Offertes</div><div class="val" style="color:#D4220F;">31</div></div>
+          <div class="po-stat"><div class="lbl">Omzet</div><div class="val">€47K</div></div>
+        </div>
+      </div>
+      <div class="po-card" style="border-color:#1B4332;" onclick="selectPlatform('bbqengourmet','🔥','BBQ & Gourmet','bbqengourmet.nl')">
+        <div class="po-name">🔥 BBQ & Gourmet</div>
+        <div class="po-stats">
+          <div class="po-stat"><div class="lbl">Offertes</div><div class="val" style="color:#1B4332;">18</div></div>
+          <div class="po-stat"><div class="lbl">Omzet</div><div class="val">€29K</div></div>
+        </div>
+      </div>
+      <div class="po-card" style="border-color:#E94560;" onclick="selectPlatform('baronwheels','🍺','Bar on Wheels','baronwheels.nl')">
+        <div class="po-name">🍺 Bar on Wheels</div>
+        <div class="po-stats">
+          <div class="po-stat"><div class="lbl">Offertes</div><div class="val" style="color:#E94560;">12</div></div>
+          <div class="po-stat"><div class="lbl">Omzet</div><div class="val">€18K</div></div>
+        </div>
+      </div>
+      <div class="po-card" style="border-color:#E07B39;" onclick="selectPlatform('hapjescateraar','🥗','Hapjes Cateraar','hapjescateraar.nl')">
+        <div class="po-name">🥗 Hapjes Cateraar</div>
+        <div class="po-stats">
+          <div class="po-stat"><div class="lbl">Offertes</div><div class="val" style="color:#E07B39;">24</div></div>
+          <div class="po-stat"><div class="lbl">Omzet</div><div class="val">€33K</div></div>
+        </div>
+      </div>
+      <div class="po-card" style="border-color:#2563EB;" onclick="selectPlatform('lunchlatenbezorgen','🥪','Lunch Laten Bezorgen','lunchlatenbezorgen.nl')">
+        <div class="po-name">🥪 Lunch Laten Bezorgen</div>
+        <div class="po-stats">
+          <div class="po-stat"><div class="lbl">Offertes</div><div class="val" style="color:#2563EB;">41</div></div>
+          <div class="po-stat"><div class="lbl">Omzet</div><div class="val">€52K</div></div>
+        </div>
+      </div>
+      <div class="po-card" style="border-color:#8B0000;" onclick="selectPlatform('kerstdinerbestellen','🎄','Kerstdiner Bestellen','kerstdinerbestellen.nl')">
+        <div class="po-name">🎄 Kerstdiner Bestellen</div>
+        <div class="po-stats">
+          <div class="po-stat"><div class="lbl">Offertes</div><div class="val" style="color:#8B0000;">8</div></div>
+          <div class="po-stat"><div class="lbl">Omzet</div><div class="val">€14K</div></div>
+        </div>
+      </div>
+      <div class="po-card" style="border-color:#FF6B35;" onclick="selectPlatform('bisbite','🍕','Bis Bite','bisbite.nl')">
+        <div class="po-name">🍕 Bis Bite</div>
+        <div class="po-stats">
+          <div class="po-stat"><div class="lbl">Offertes</div><div class="val" style="color:#FF6B35;">9</div></div>
+          <div class="po-stat"><div class="lbl">Omzet</div><div class="val">€11K</div></div>
+        </div>
+      </div>
+      <div class="po-card" style="border-color:#7B2D8B;" onclick="selectPlatform('highteabestellen','☕','High Tea Bestellen','highteabestellen.nl')">
+        <div class="po-name">☕ High Tea Bestellen</div>
+        <div class="po-stats">
+          <div class="po-stat"><div class="lbl">Offertes</div><div class="val" style="color:#7B2D8B;">15</div></div>
+          <div class="po-stat"><div class="lbl">Omzet</div><div class="val">€21K</div></div>
+        </div>
+      </div>
+      <div class="po-card" style="border-color:#FF6B35;" onclick="selectPlatform('bissbite','🥙','Biss Bite','bissbite.nl')">
+        <div class="po-name">🥙 Biss Bite</div>
+        <div class="po-stats">
+          <div class="po-stat"><div class="lbl">Offertes</div><div class="val" style="color:#FF6B35;">9</div></div>
+          <div class="po-stat"><div class="lbl">Omzet</div><div class="val">€11K</div></div>
+        </div>
+      </div>
+      <div class="po-card" style="border-color:#FF6B35;" onclick="selectPlatform('bisbite','🍟','Bisbite','bisbite.nl')">
+        <div class="po-name">🍟 Bisbite</div>
+        <div class="po-stats">
+          <div class="po-stat"><div class="lbl">Offertes</div><div class="val" style="color:#FF6B35;">6</div></div>
+          <div class="po-stat"><div class="lbl">Omzet</div><div class="val">€9K</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat" data-icon="📋">
+        <div class="stat-label">Totaal offertes</div>
+        <div class="stat-value" id="stat-total">158</div>
+        <div class="stat-delta">↑ Alle platforms</div>
+      </div>
+      <div class="stat" data-icon="✅" style="border-top-color:var(--green);">
+        <div class="stat-label">Getekend</div>
+        <div class="stat-value" id="stat-signed">87</div>
+        <div class="stat-delta">58% conversie</div>
+      </div>
+      <div class="stat" data-icon="💶" style="border-top-color:var(--c2);">
+        <div class="stat-label">Totale omzet</div>
+        <div class="stat-value" id="stat-revenue">€225K</div>
+        <div class="stat-delta" style="color:var(--c2);">↑ Deze maand</div>
+      </div>
+      <div class="stat" data-icon="🔔" style="border-top-color:#856404;">
+        <div class="stat-label">Wacht op akkoord</div>
+        <div class="stat-value" id="stat-pending">26</div>
+        <div class="stat-delta" style="color:#856404;">Actie vereist</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-title">Recente offertes</div>
+          <span style="font-size:0.72rem; color:rgba(255,255,255,0.4);">Alle platforms</span>
+        </div>
+        <div class="card-body">
+          <div class="qrow"><div class="qr-av" style="background:#D4220F;">VD</div><div><div class="qr-name">Vos & De Groot BV</div><div class="qr-meta">🍽️ HAH-2026-0031 · Borrel · 18 apr</div></div><div class="qr-right"><div class="qr-amount">€ 2.840</div><span class="badge badge-viewed">Bekeken</span></div></div>
+          <div class="qrow"><div class="qr-av" style="background:#1B4332;">MK</div><div><div class="qr-name">Mark Kooijman</div><div class="qr-meta">🔥 BBQ-2026-0018 · BBQ · 22 apr</div></div><div class="qr-right"><div class="qr-amount">€ 1.840</div><span class="badge badge-signed">✓ Getekend</span></div></div>
+          <div class="qrow"><div class="qr-av" style="background:#E94560;">PL</div><div><div class="qr-name">Party Lounge BV</div><div class="qr-meta">🍺 BOW-2026-0012 · Bar huur · 1 mei</div></div><div class="qr-right"><div class="qr-amount">€ 3.200</div><span class="badge badge-sent">Verstuurd</span></div></div>
+          <div class="qrow"><div class="qr-av" style="background:#2563EB;">TN</div><div><div class="qr-name">Tech Nederland BV</div><div class="qr-meta">🥪 LLB-2026-0041 · Lunch · 5 apr</div></div><div class="qr-right"><div class="qr-amount">€ 680</div><span class="badge badge-signed">✓ Getekend</span></div></div>
+          <div class="qrow"><div class="qr-av" style="background:#7B2D8B;">AS</div><div><div class="qr-name">Anja & Saskia</div><div class="qr-meta">☕ HTB-2026-0015 · High Tea · 10 mei</div></div><div class="qr-right"><div class="qr-amount">€ 520</div><span class="badge badge-viewed">Bekeken</span></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">Activiteit</div></div>
+        <div class="card-body">
+          <div class="act-item"><div class="act-dot" style="background:var(--green);"></div><div><div class="act-text"><strong>Mark Kooijman</strong> ondertekende BBQ offerte</div><div class="act-time">30 min geleden</div></div></div>
+          <div class="act-item"><div class="act-dot"></div><div><div class="act-text"><strong>Vos & De Groot</strong> vroeg aanpassing: meer vegetarisch</div><div class="act-time">2 uur geleden</div></div></div>
+          <div class="act-item"><div class="act-dot" style="background:var(--c2);"></div><div><div class="act-text">Offerte BOW-2026-0012 verstuurd naar <strong>Party Lounge BV</strong></div><div class="act-time">Gisteren 15:30</div></div></div>
+          <div class="act-item"><div class="act-dot"></div><div><div class="act-text">Nieuwe aanvraag via <strong>highteabestellen.nl</strong> — 12 gasten</div><div class="act-time">Gisteren 11:20</div></div></div>
+          <div class="act-item"><div class="act-dot" style="background:#856404;"></div><div><div class="act-text">5 orders doorgestuurd naar bestelsysteem ✓</div><div class="act-time">Gisteren 09:00</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- BUILDER TAB -->
+  <div id="tab-builder" class="panel">
+  <div class="page">
+    <div class="page-head">
+      <div>
+        <div class="page-title" id="builder-title">Nieuwe offerte</div>
+        <div class="page-sub" id="builder-sub">Hapjes aan Huis</div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost">💾 Opslaan</button>
+        <button class="btn btn-primary" onclick="showTab('portal')">📤 Versturen</button>
+      </div>
+    </div>
+
+    <div class="event-bar">
+      <div><div class="eb-label">Klant</div><div class="eb-val">Vos & De Groot BV</div></div>
+      <div><div class="eb-label">Evenement</div><div class="eb-val">Bedrijfsborrel</div></div>
+      <div><div class="eb-label">Datum</div><div class="eb-val">18 april 2026</div></div>
+      <div><div class="eb-label">Locatie</div><div class="eb-val">Kantoor Rotterdam</div></div>
+      <div><div class="eb-label">Gasten</div><div class="eb-val">50 personen</div></div>
+    </div>
+
+    <div class="builder-layout">
+      <div>
+        <div style="font-size:0.68rem; text-transform:uppercase; letter-spacing:1.5px; color:var(--gray); margin-bottom:12px; font-weight:600;">Offerteregels</div>
+        <div class="item-row">
+          <div class="ir-emoji">🥂</div>
+          <div class="ir-info"><div class="ir-name">Welkomstdrankje Deluxe</div><div class="ir-meta">€ 5,50 p.p. excl. BTW · 9%</div></div>
+          <div class="qty-ctrl"><button class="qty-btn" onclick="chQty(this,-1)">−</button><span class="qty-val">50</span><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <div class="ir-price"><div class="excl">€ 275,00</div><div class="vat">excl. BTW</div></div>
+          <div class="ir-del">×</div>
+        </div>
+        <div class="item-row">
+          <div class="ir-emoji">🧀</div>
+          <div class="ir-info"><div class="ir-name">Borrelschaal Klassiek</div><div class="ir-meta">€ 9,50 p.p. excl. BTW · 9%</div></div>
+          <div class="qty-ctrl"><button class="qty-btn" onclick="chQty(this,-1)">−</button><span class="qty-val">50</span><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <div class="ir-price"><div class="excl">€ 475,00</div><div class="vat">excl. BTW</div></div>
+          <div class="ir-del">×</div>
+        </div>
+        <div class="item-row">
+          <div class="ir-emoji">🥗</div>
+          <div class="ir-info"><div class="ir-name">Lunchpakket Standaard</div><div class="ir-meta">€ 12,50 p.p. excl. BTW · 9%</div></div>
+          <div class="qty-ctrl"><button class="qty-btn" onclick="chQty(this,-1)">−</button><span class="qty-val">50</span><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <div class="ir-price"><div class="excl">€ 625,00</div><div class="vat">excl. BTW</div></div>
+          <div class="ir-del">×</div>
+        </div>
+        <div class="add-section">
+          <div style="font-size:0.75rem; font-weight:600; color:var(--gray); margin-bottom:9px;">+ Product toevoegen</div>
+          <select id="product-select"></select>
+          <button class="btn btn-primary btn-sm">Toevoegen</button>
+        </div>
+      </div>
+
+      <div class="totals-card">
+        <div class="card">
+          <div class="card-head"><div class="card-head-title">💰 Totaal</div></div>
+          <div class="card-body">
+            <div class="tl"><span class="lbl">Subtotaal excl. BTW</span><span>€ 1.375,00</span></div>
+            <div class="tl dis"><span class="lbl">Korting 5%</span><span class="val">− € 68,75</span></div>
+            <div class="tl"><span class="lbl">BTW 9%</span><span>€ 122,06</span></div>
+            <div class="tl grand"><span>Totaal incl. BTW</span><span class="val">€ 1.428,31</span></div>
+            <div style="margin-top:16px; display:flex; flex-direction:column; gap:9px;">
+              <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="showTab('portal')">📤 Versturen naar klant</button>
+              <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="showTab('pdf')">📄 PDF bekijken</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- PORTAL TAB -->
+  <div id="tab-portal" class="panel">
+  <div class="portal-wrap" style="padding-top:0;">
+    <div class="portal-hero">
+      <div class="ph-logo" id="portal-logo">🍽️ Hapjes aan Huis</div>
+      <div class="ph-sub">Uw persoonlijke offerteportal</div>
+      <div class="ph-badge" id="portal-num">📋 Offerte HAH-2026-0031</div>
+    </div>
+
+    <div id="portal-success" style="display:none;">
+      <div class="success-box"><div class="si">🎉</div><div class="st">Offerte ondertekend!</div><div class="ss">U ontvangt een bevestiging per e-mail.</div></div>
+    </div>
+    <div id="portal-aanp-success" style="display:none;">
+      <div class="success-box" style="background:#fff8e1;border-color:#ffc107;"><div class="si">✉️</div><div class="st" style="color:#856404;">Aanpassing verstuurd!</div><div class="ss">Wij sturen u zo snel mogelijk een nieuwe offerte.</div></div>
+    </div>
+
+    <div class="portal-tabs">
+      <div class="ptab active" onclick="ptab('bekijken')">📋 Bekijken</div>
+      <div class="ptab" onclick="ptab('akkoord')">✍️ Akkoord</div>
+      <div class="ptab" onclick="ptab('aanpassen')">✏️ Aanpassing</div>
+    </div>
+
+    <div id="ptab-bekijken">
+      <div class="pcard"><div class="pcard-head">🎉 Evenementgegevens</div><div class="pcard-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:2px;">Klant</div><div style="font-weight:600;">Vos & De Groot BV</div></div>
+          <div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:2px;">Datum</div><div style="font-weight:600;">18 april 2026</div></div>
+          <div><div style="font-size:0.62px;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:2px;">Gasten</div><div style="font-weight:600;">50 personen</div></div>
+          <div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);margin-bottom:2px;">Locatie</div><div style="font-weight:600;">Rotterdam</div></div>
+        </div>
+      </div></div>
+      <div class="pcard"><div class="pcard-head">🍴 Bestelling</div><div class="pcard-body">
+        <div class="portal-item"><div><div class="pi-name">🥂 Welkomstdrankje Deluxe</div><div class="pi-qty">50 p. × € 5,50</div></div><div class="pi-price">€ 275,00</div></div>
+        <div class="portal-item"><div><div class="pi-name">🧀 Borrelschaal Klassiek</div><div class="pi-qty">50 p. × € 9,50</div></div><div class="pi-price">€ 475,00</div></div>
+        <div class="portal-item"><div><div class="pi-name">🥗 Lunchpakket Standaard</div><div class="pi-qty">50 p. × € 12,50</div></div><div class="pi-price">€ 625,00</div></div>
+        <div style="padding-top:12px;margin-top:6px;">
+          <div class="portal-total"><span>Subtotaal excl. BTW</span><span>€ 1.375,00</span></div>
+          <div class="portal-total"><span style="color:#c53030;">Korting 5%</span><span style="color:#c53030;">− € 68,75</span></div>
+          <div class="portal-total"><span>BTW 9%</span><span>€ 122,06</span></div>
+          <div class="portal-total grand"><span>Totaal incl. BTW</span><span class="ptv">€ 1.428,31</span></div>
+        </div>
+      </div></div>
+      <button class="akkoord-btn" onclick="ptab('akkoord')">✍️ Akkoord geven</button>
+      <button class="aanpassing-btn" onclick="ptab('aanpassen')">✏️ Aanpassing vragen</button>
+    </div>
+
+    <div id="ptab-akkoord" style="display:none;">
+      <div class="pcard" id="sign-card"><div class="pcard-head">✍️ Ondertekenen</div><div class="pcard-body">
+        <div class="field"><label>Uw naam</label><input type="text" value="Thomas Vos"></div>
+        <div class="field"><label>E-mailadres</label><input type="email" value="t.vos@vosdegroot.nl"></div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:0.78rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px;">Handtekening</label>
+          <div class="sig-wrap" id="sigWrap"><canvas id="sigCanvas"></canvas><div class="sig-ph" id="sigPh">✍️ Klik hier om te tekenen</div></div>
+          <button onclick="clearSig()" class="btn btn-ghost btn-sm" style="margin-top:6px;">Wissen</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:16px;font-size:0.8rem;color:var(--mid);">
+          <input type="checkbox" id="agree" style="margin-top:3px;accent-color:var(--c1);">
+          <label for="agree">Ik ga akkoord met het totaalbedrag van <strong>€ 1.428,31 incl. BTW</strong>.</label>
+        </div>
+        <button class="akkoord-btn" onclick="doSign()">✍️ Bevestigen & ondertekenen</button>
+      </div></div>
+    </div>
+
+    <div id="ptab-aanpassen" style="display:none;">
+      <div class="pcard" id="aanp-card"><div class="pcard-head">✏️ Aanpassing aanvragen</div><div class="pcard-body">
+        <div class="field"><label>Uw wens of aanpassing</label><textarea id="aanpTxt">Kunnen jullie meer vegetarische opties toevoegen?</textarea></div>
+        <div class="field"><label>Uw naam</label><input type="text" value="Thomas Vos"></div>
+        <button class="akkoord-btn" style="background:var(--c2);" onclick="doAanp()">✉️ Aanpassing versturen</button>
+      </div></div>
+    </div>
+  </div>
+  </div>
+
+  <!-- PDF TAB -->
+  <div id="tab-pdf" class="panel">
+  <div class="page">
+    <div class="page-head">
+      <div><div class="page-title">PDF Preview</div><div class="page-sub" id="pdf-sub">Hapjes aan Huis</div></div>
+      <button class="btn btn-primary">📥 Download PDF</button>
+    </div>
+    <div class="pdf-outer">
+      <div class="pdf-doc">
+        <div class="pdf-top">
+          <div><div class="pdf-brand" id="pdf-brand">🍽️ Hapjes aan Huis</div><div class="pdf-tagline" id="pdf-tag">Catering & Partyservice · Heel Nederland</div></div>
+          <div><div class="pdf-title">OFFERTE</div><div class="pdf-num" id="pdf-num">HAH-2026-0031</div></div>
+        </div>
+        <div class="pdf-bar"></div>
+        <div class="pdf-body">
+          <div class="pdf-info">
+            <div><div class="pdf-lbl">Klantgegevens</div><div class="pdf-val"><strong>Vos & De Groot BV</strong><br>T.a.v. Thomas Vos<br>Weena 505, Rotterdam<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="51257f273e2211273e22353436233e3e257f3f3d">[email&#160;protected]</a></div></div>
+            <div style="text-align:right;"><div class="pdf-lbl" style="text-align:right;">Offerte details</div><div class="pdf-val" style="text-align:right;"><strong>Nummer:</strong> HAH-2026-0031<br><strong>Datum:</strong> 29-03-2026<br><strong>Geldig tot:</strong> 18-04-2026</div></div>
+          </div>
+          <div class="pdf-event">
+            <div class="pdf-event-name">Bedrijfsborrel — Vos & De Groot BV</div>
+            <div class="pdf-event-meta">📅 18 april 2026 &nbsp;·&nbsp; 📍 Kantoor Rotterdam &nbsp;·&nbsp; 👥 50 gasten</div>
+          </div>
+          <table class="pdf-tbl">
+            <thead><tr><th></th><th>Omschrijving</th><th class="r">Aantal</th><th class="r">Prijs excl.</th><th class="r">BTW</th><th class="r">Totaal excl.</th></tr></thead>
+            <tbody>
+              <tr><td>🥂</td><td><span class="pn">Welkomstdrankje Deluxe</span><span class="ps2">Prosecco, jus & bruiswater</span></td><td class="r">50 p.</td><td class="r">€ 5,50</td><td class="r">9%</td><td class="r">€ 275,00</td></tr>
+              <tr><td>🧀</td><td><span class="pn">Borrelschaal Klassiek</span><span class="ps2">Bitterballen, kaas & crackers</span></td><td class="r">50 p.</td><td class="r">€ 9,50</td><td class="r">9%</td><td class="r">€ 475,00</td></tr>
+              <tr><td>🥗</td><td><span class="pn">Lunchpakket Standaard</span><span class="ps2">Broodjes, salade & fruit</span></td><td class="r">50 p.</td><td class="r">€ 12,50</td><td class="r">9%</td><td class="r">€ 625,00</td></tr>
+            </tbody>
+          </table>
+          <div class="pdf-sum-row">
+            <div></div>
+            <div>
+              <table class="pdf-sum">
+                <tr><td class="lbl">Subtotaal excl. BTW</td><td class="val">€ 1.375,00</td></tr>
+                <tr class="dis"><td class="lbl">Korting (5%)</td><td class="val">− € 68,75</td></tr>
+                <tr><td class="lbl">BTW totaal</td><td class="val">€ 122,06</td></tr>
+                <tr class="grand"><td>TOTAAL INCL. BTW</td><td class="val">€ 1.428,31</td></tr>
+              </table>
+            </div>
+          </div>
+          <div class="pdf-validity" id="pdf-validity">⏳ Geldig tot <strong>18 april 2026</strong>. Vragen? <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dcb5b2bab39cb4bdacb6b9afbdbdb2b4a9b5aff2b2b0">[email&#160;protected]</a> · 085-7430362</div>
+        </div>
+        <div class="pdf-foot"><span id="pdf-foot-l">Hapjes aan Huis · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f990979f96b9919889939c8a989897918c908ad79795">[email&#160;protected]</a> · 085-7430362</span><span class="right">HAH-2026-0031</span></div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+</div><!-- /dashboard-screen -->
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── PLATFORM CONFIG ──
+const platforms = {
+  hapjesaanhuis:      { emoji:'🍽️', name:'Hapjes aan Huis',       url:'hapjesaanhuis.nl',      quote:'HAH',  tag:'Catering & Partyservice · Heel Nederland', contact:'info@hapjesaanhuis.nl · 085-7430362', products:['Borrelschaal Luxe (€ 16,50 p.p.)','Warm-Koud Buffet (€ 28,50 p.p.)','High Tea (€ 22,00 p.p.)','Drankenpakket (€ 9,50 p.p.)'] },
+  bbqengourmet:       { emoji:'🔥', name:'BBQ & Gourmet',          url:'bbqengourmet.nl',       quote:'BBQ',  tag:'BBQ · Gourmet · Steengrill · Fondue', contact:'info@bbqengourmet.nl · 085-7430362', products:['BBQ Pakket Standaard (€ 18,50 p.p.)','BBQ Pakket Luxe (€ 28,50 p.p.)','Gourmet Pakket (€ 22,00 p.p.)','Steengrill Pakket (€ 25,00 p.p.)'] },
+  baronwheels:        { emoji:'🍺', name:'Bar on Wheels',          url:'baronwheels.nl',        quote:'BOW',  tag:'Mobiele bar · Events · Heel Nederland', contact:'info@baronwheels.nl · 06-52335844', products:['Bier arrangement (€ 12,50 p.p.)','Cocktail pakket (€ 18,50 p.p.)','Wijn & bubbels (€ 15,00 p.p.)','Bar huur per dag (€ 350,00)'] },
+  hapjescateraar:     { emoji:'🥗', name:'Hapjes Cateraar',        url:'hapjescateraar.nl',     quote:'HJC',  tag:'Verse hapjes · Bezorgd heel Nederland', contact:'info@hapjescateraar.nl · 085-7430362', products:['Tapas pakket (€ 14,50 p.p.)','Walking dinner (€ 32,50 p.p.)','Fingerfood luxe (€ 19,50 p.p.)','Vegetarisch pakket (€ 16,50 p.p.)'] },
+  lunchlatenbezorgen: { emoji:'🥪', name:'Lunch Laten Bezorgen',   url:'lunchlatenbezorgen.nl', quote:'LLB',  tag:'Verse lunch · Bezorgd op locatie', contact:'info@lunchlatenbezorgen.nl · 085-7430362', products:['Lunchpakket Basis (€ 8,50 p.p.)','Lunchpakket Premium (€ 14,50 p.p.)','Broodjes assortiment (€ 6,50 p.p.)','Saladebar (€ 9,50 p.p.)'] },
+  kerstdinerbestellen:{ emoji:'🎄', name:'Kerstdiner Bestellen',   url:'kerstdinerbestellen.nl',quote:'KDB',  tag:'Kerst catering · Heel Nederland', contact:'info@kerstdinerbestellen.nl · 085-7430362', products:['Kerstbuffet Standaard (€ 38,50 p.p.)','Kerstdiner Luxe (€ 55,00 p.p.)','Kerst High Tea (€ 28,50 p.p.)','Kerstpakket bezorgd (€ 22,50 p.p.)'] },
+  bisbite:            { emoji:'🍕', name:'Bis Bite',               url:'bisbite.nl',            quote:'BSB',  tag:'Street food & bites · Heel Nederland', contact:'info@bisbite.nl · 085-7430362', products:['Bites pakket Klein (€ 8,50 p.p.)','Bites pakket Groot (€ 14,50 p.p.)','Street food borrel (€ 18,50 p.p.)','Pizza party (€ 12,50 p.p.)'] },
+  highteabestellen:   { emoji:'☕', name:'High Tea Bestellen',     url:'highteabestellen.nl',   quote:'HTB',  tag:'High Tea · Bezorgd heel Nederland', contact:'info@highteabestellen.nl · 085-7430362', products:['High Tea Klassiek (€ 22,00 p.p.)','High Tea Luxe (€ 32,50 p.p.)','Afternoon Tea (€ 18,50 p.p.)','Thee & gebak (€ 12,50 p.p.)'] },
+  bissbite:           { emoji:'🥙', name:'Biss Bite',               url:'bissbite.nl',           quote:'BSB',  tag:'Snelle & lekkere bites · Heel Nederland', contact:'info@bissbite.nl · 085-7430362', products:['Biss Box Standaard (€ 8,50 p.p.)','Biss Box Luxe (€ 14,50 p.p.)','Wraps assortiment (€ 7,50 p.p.)','Vegan bites (€ 9,50 p.p.)'] },
+  bisbite:            { emoji:'🍟', name:'Bisbite',                   url:'bisbite.nl',            quote:'BIS',  tag:'Snacks & Bites · Bezorgd heel Nederland', contact:'info@bisbite.nl · 085-7430362', products:['Snackbox Standaard (€ 8,50 p.p.)','Snackbox Luxe (€ 14,50 p.p.)','Bites Assortiment (€ 6,50 p.p.)','Party Snacks (€ 11,50 p.p.)'] },
+};
+
+let currentPlatform = 'hapjesaanhuis';
+
+function selectPlatform(key, emoji, name, url) {
+  currentPlatform = key;
+  const p = platforms[key];
+
+  // Set theme
+  document.body.setAttribute('data-platform', key);
+
+  // Update topbar
+  document.getElementById('tb-emoji').textContent = p.emoji;
+  document.getElementById('tb-name').innerHTML = p.name + '<span>' + p.url + '</span>';
+
+  // Update builder
+  document.getElementById('builder-sub').textContent = p.name;
+  document.getElementById('builder-title').textContent = 'Nieuwe offerte — ' + p.name;
+
+  // Update portal
+  document.getElementById('portal-logo').textContent = p.emoji + ' ' + p.name;
+  document.getElementById('portal-num').textContent = '📋 Offerte ' + p.quote + '-2026-0031';
+
+  // Update PDF
+  document.getElementById('pdf-brand').textContent = p.emoji + ' ' + p.name;
+  document.getElementById('pdf-tag').textContent = p.tag;
+  document.getElementById('pdf-num').textContent = p.quote + '-2026-0031';
+  document.getElementById('pdf-validity').innerHTML = '⏳ Geldig tot <strong>18 april 2026</strong>. Vragen? ' + p.contact;
+  document.getElementById('pdf-foot-l').textContent = p.name + ' · ' + p.contact;
+  document.getElementById('pdf-sub').textContent = p.name;
+
+  // Update product dropdown
+  const sel = document.getElementById('product-select');
+  sel.innerHTML = '<option>— Kies een product —</option>' + p.products.map(pr => '<option>' + pr + '</option>').join('');
+
+  // Show dashboard
+  document.getElementById('platform-screen').style.display = 'none';
+  document.getElementById('dashboard-screen').style.display = 'block';
+
+  // Reset to dashboard tab
+  showTab('dashboard');
+}
+
+function goHome() {
+  document.getElementById('platform-screen').style.display = 'flex';
+  document.getElementById('dashboard-screen').style.display = 'none';
+}
+
+function showTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  const idx = { dashboard:0, builder:1, portal:2, pdf:3 };
+  document.querySelectorAll('.nav-tab')[idx[tab]].classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function chQty(btn, d) {
+  const s = btn.parentNode.querySelector('.qty-val');
+  let v = parseInt(s.textContent) + d;
+  if(v < 1) v = 1;
+  s.textContent = v;
+}
+
+// Portal tabs
+function ptab(tab) {
+  ['bekijken','akkoord','aanpassen'].forEach(t => {
+    document.getElementById('ptab-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.ptab').forEach((el,i) => {
+    el.classList.toggle('active', ['bekijken','akkoord','aanpassen'][i] === tab);
+  });
+}
+
+// Signature
+let sigPad;
+window.addEventListener('load', () => {
+  const canvas = document.getElementById('sigCanvas');
+  if(!canvas) return;
+  sigPad = new SignaturePad(canvas, { penColor:'#1A1008' });
+  function resize() {
+    const r = Math.max(window.devicePixelRatio||1,1);
+    canvas.width = canvas.offsetWidth * r;
+    canvas.height = canvas.offsetHeight * r;
+    canvas.getContext('2d').scale(r,r);
+    sigPad.clear();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  sigPad.addEventListener('beginStroke', () => {
+    document.getElementById('sigPh').style.display = 'none';
+    document.getElementById('sigWrap').classList.add('signed');
+  });
+});
+
+function clearSig() {
+  if(sigPad) sigPad.clear();
+  document.getElementById('sigPh').style.display = 'block';
+  document.getElementById('sigWrap').classList.remove('signed');
+}
+
+function doSign() {
+  if(!sigPad || sigPad.isEmpty()) { alert('Zet eerst uw handtekening.'); return; }
+  if(!document.getElementById('agree').checked) { alert('Vink het akkoordvakje aan.'); return; }
+  document.getElementById('sign-card').style.display = 'none';
+  document.getElementById('portal-success').style.disp<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hapjes aan Huis — Offerte Systeem Demo</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
